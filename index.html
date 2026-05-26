@@ -38,6 +38,15 @@ header h1 span{font-weight:300;opacity:.8}
 .btn-sm:hover{background:#e2e8f0}
 .btn-sm.email{background:#dcfce7;border-color:#86efac;color:#15803d}
 .btn-sm.email:hover{background:#bbf7d0}
+.btn-sm.tracker{background:#ede9fe;border-color:#c4b5fd;color:#6d28d9}
+.btn-sm.tracker:hover{background:#ddd6fe}
+/* Settings Modal */
+.settings-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:1rem}
+.settings-overlay.open{display:flex}
+.settings-modal{background:white;border-radius:10px;width:380px;max-width:100%;box-shadow:0 20px 40px rgba(0,0,0,.25);overflow:hidden;animation:slideUp .18s ease}
+.srow{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.settings-modal .modal-head{background:linear-gradient(135deg,#2d3748,#4a5568);color:white;padding:1rem 1.25rem}
+.settings-modal .modal-head h2{font-size:1rem;font-weight:700}
 
 /* ── CALENDAR ── */
 .calendar-wrap{padding:.85rem 1.5rem 2rem;overflow-x:auto;transition:margin-right .25s}
@@ -175,6 +184,8 @@ header h1 span{font-weight:300;opacity:.8}
     <span class="legend-item"><span style="font-size:.9rem">🟢</span>Online/Teams</span>
   </div>
   <div class="io-btns">
+    <button class="btn-sm tracker" id="btnClienti" onclick="importClientiDaTracker()">👥 Carica clienti</button>
+    <button class="btn-sm" onclick="openSettings()">⚙️ Orari</button>
     <button class="btn-sm email" onclick="sendWeekEmail()" title="Invia riepilogo settimana via Gmail">📧 Email settimana</button>
     <button class="btn-sm" onclick="exportData()">⬇ Esporta JSON</button>
     <button class="btn-sm" onclick="document.getElementById('importFile').click()">⬆ Importa JSON</button>
@@ -223,14 +234,14 @@ Configura la API key in basso, poi usa i pulsanti rapidi o scrivi liberamente.</
   <div class="ai-config">
     <div class="ai-config-row">
       <label>Provider</label>
-      <select id="aiProvider" onchange="saveAiConfig()">
+      <select id="aiProvider" onchange="onProviderChange()">
         <option value="openai">OpenAI GPT-4o mini</option>
         <option value="gemini">Gemini 2.0 Flash</option>
       </select>
     </div>
     <div class="ai-config-row">
       <label>API Key</label>
-      <input type="password" id="aiKey" placeholder="sk-… oppure AIza…" oninput="saveAiConfig()">
+      <input type="password" id="aiKey" placeholder="sk-… oppure AIza…" oninput="onKeyInput()">
     </div>
     <div class="hint">Chiave salvata nel browser. Stessa usata dal DR Tracker.</div>
   </div>
@@ -299,6 +310,40 @@ Configura la API key in basso, poi usa i pulsanti rapidi o scrivi liberamente.</
   </div>
 </div>
 
+<!-- Settings Modal -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettingsOutside(event)">
+  <div class="settings-modal">
+    <div class="modal-head"><h2>⚙️ Impostazioni Orari</h2></div>
+    <div class="modal-body">
+      <p style="font-size:.8rem;color:#718096;margin-bottom:1rem">Gli slot sono da 30 minuti. Le modifiche si applicano subito al calendario.</p>
+      <div class="srow">
+        <div class="fg">
+          <label>Inizio mattina</label>
+          <select id="sMattinaStart"></select>
+        </div>
+        <div class="fg">
+          <label>Fine mattina</label>
+          <select id="sMattinaEnd"></select>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="fg">
+          <label>Inizio pomeriggio</label>
+          <select id="sPomStart"></select>
+        </div>
+        <div class="fg">
+          <label>Fine pomeriggio</label>
+          <select id="sPomEnd"></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeSettings()">Annulla</button>
+      <button class="btn btn-primary" onclick="saveSettings()">✓ Applica</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── CONSTANTS ──
 const DAYS_SHORT = ['Lun','Mar','Mer','Gio','Ven'];
@@ -309,15 +354,57 @@ const REGIMI = {S:'Semplificato',F:'Forfettario',A:'Associazione',O:'Ordinario',
 const REGIME_COLORS = {S:{c:'#1d4ed8',bg:'#dbeafe'},F:{c:'#6d28d9',bg:'#ede9fe'},A:{c:'#b45309',bg:'#fef3c7'},O:{c:'#0f766e',bg:'#ccfbf1'},K:{c:'#be123c',bg:'#ffe4e6'}};
 const STATI_LABELS = ['Da elaborare','Compilata','Terminata (annotaz.)','Terminata definitiv.','Discussa con cliente'];
 const STATI_COLORS = ['#9ca3af','#fbbf24','#60a5fa','#4ade80','#22c55e'];
-const MORNING   = buildSlots(9, 13);
-const AFTERNOON = buildSlots(15, 18);
+let MORNING = [], AFTERNOON = [];
 
 // ── STATE ──
 let weekStart = getMonday(new Date());
 let db = JSON.parse(localStorage.getItem('agenda_v1') || '{}');
 let mDate = null, mTime = null, mKey = null;
-let trackerClienti = [];
+let clientiAgenda = [];
 let aiLoading = false;
+
+// ── SETTINGS (orari) ──
+function loadSettings(){
+  try{ return Object.assign({ms:9,me:13,ps:15,pe:18}, JSON.parse(localStorage.getItem('agenda_settings')||'{}')); }
+  catch{ return {ms:9,me:13,ps:15,pe:18}; }
+}
+function rebuildSlots(){
+  const s=loadSettings();
+  MORNING   = buildSlots(s.ms, s.me);
+  AFTERNOON = buildSlots(s.ps, s.pe);
+  const bl=document.querySelector('.br-label');
+  if(bl) bl.textContent=`${s.me}–${s.ps}`;
+}
+function openSettings(){
+  const s=loadSettings();
+  ['sMattinaStart','sMattinaEnd','sPomStart','sPomEnd'].forEach(id=>{
+    const sel=document.getElementById(id);
+    sel.innerHTML='';
+    for(let h=5;h<=23;h++){
+      const o=document.createElement('option');
+      o.value=h; o.textContent=pad(h)+':00';
+      sel.appendChild(o);
+    }
+  });
+  document.getElementById('sMattinaStart').value=s.ms;
+  document.getElementById('sMattinaEnd').value=s.me;
+  document.getElementById('sPomStart').value=s.ps;
+  document.getElementById('sPomEnd').value=s.pe;
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('open'); }
+function closeSettingsOutside(e){ if(e.target===document.getElementById('settingsOverlay')) closeSettings(); }
+function saveSettings(){
+  const ms=+document.getElementById('sMattinaStart').value;
+  const me=+document.getElementById('sMattinaEnd').value;
+  const ps=+document.getElementById('sPomStart').value;
+  const pe=+document.getElementById('sPomEnd').value;
+  if(ms>=me){ alert('Fine mattina deve essere dopo inizio mattina.'); return; }
+  if(ps>=pe){ alert('Fine pomeriggio deve essere dopo inizio pomeriggio.'); return; }
+  if(ps<=me){ alert('Inizio pomeriggio deve essere dopo fine mattina.'); return; }
+  localStorage.setItem('agenda_settings', JSON.stringify({ms,me,ps,pe}));
+  rebuildSlots(); closeSettings(); render();
+}
 
 // ── HELPERS ──
 function pad(n){ return String(n).padStart(2,'0'); }
@@ -340,29 +427,63 @@ function fmtFull(d){ return `${DAYS_FULL[d.getDay()-1]} ${d.getDate()} ${MONTHS[
 function apptKey(d,t){ return `${isoDate(d)}@${t}`; }
 function tipoShort(t){ return {dichiarazione:'Dich. Redditi',discussione:'Discussione',altro:'Altro'}[t]||t; }
 
-// ── TRACKER ──
-function loadTrackerClienti(){
-  try{ const s=localStorage.getItem('bdz_dr_tracker'); return s?JSON.parse(s):[];
-  }catch{ return []; }
+// ── CLIENTI ──
+function loadClientiAgenda(){
+  try{
+    const own=localStorage.getItem('agenda_clienti');
+    if(own){ clientiAgenda=JSON.parse(own); updateClientiBadge(); return; }
+    // auto-import da DR Tracker se disponibile
+    const tracker=localStorage.getItem('bdz_dr_tracker');
+    if(tracker){
+      clientiAgenda=JSON.parse(tracker);
+      localStorage.setItem('agenda_clienti',JSON.stringify(clientiAgenda));
+    }
+  }catch{ clientiAgenda=[]; }
+  updateClientiBadge();
+}
+function updateClientiBadge(){
+  const btn=document.getElementById('btnClienti');
+  if(!btn) return;
+  btn.textContent=clientiAgenda.length>0?`👥 ${clientiAgenda.length} clienti`:'👥 Carica clienti';
+}
+function importClientiDaTracker(){
+  const raw=localStorage.getItem('bdz_dr_tracker');
+  if(!raw||JSON.parse(raw).length===0){
+    alert('DR Tracker non trovato in questo browser.\n\nApri il file dr-tracker-bdz_NEW.html nello stesso browser almeno una volta, poi clicca di nuovo "Carica clienti".');
+    return;
+  }
+  const data=JSON.parse(raw);
+  if(!confirm(`Importare ${data.length} clienti dal DR Tracker?\nL'elenco attuale verrà aggiornato.`)) return;
+  clientiAgenda=data;
+  localStorage.setItem('agenda_clienti',JSON.stringify(clientiAgenda));
+  updateClientiBadge();
+  alert(`✓ ${data.length} clienti caricati con regime e stato DR.`);
 }
 
 function acFilter(q){
   const drop=document.getElementById('acDropdown');
   const v=q.trim().toUpperCase();
   if(v.length<2){ drop.classList.add('hidden'); return; }
-  const matches=trackerClienti.filter(c=>c.nominativo.toUpperCase().includes(v)).slice(0,10);
+  if(clientiAgenda.length===0){
+    drop.innerHTML='<div class="ac-item no-results">Nessun cliente caricato — usa "👥 Carica clienti" nella toolbar</div>';
+    drop.classList.remove('hidden'); return;
+  }
+  const matches=clientiAgenda.filter(c=>c.nominativo.toUpperCase().includes(v)).slice(0,12);
   if(!matches.length){
-    drop.innerHTML='<div class="ac-item no-results">Nessun risultato nel Tracker DR</div>';
+    drop.innerHTML='<div class="ac-item no-results">Nessun risultato — prova parola diversa</div>';
   } else {
-    drop.innerHTML=matches.map((c,i)=>{
+    drop.innerHTML='';
+    matches.forEach((c,i)=>{
       const rc=REGIME_COLORS[c.regime]||{c:'#6b7280',bg:'#f3f4f6'};
       const sc=STATI_COLORS[c.stato]||'#9ca3af';
-      return `<div class="ac-item" onmousedown="acSelect(${i},'${c.nominativo.replace(/'/g,"\\'")}','${c.regime}',${c.stato})">
-        <span class="regime-badge" style="color:${rc.c};background:${rc.bg}">${c.regime}</span>
-        <span class="ac-name">${c.nominativo}</span>
-        <span class="stato-dot" style="background:${sc}" title="${STATI_LABELS[c.stato]||''}"></span>
-      </div>`;
-    }).join('');
+      const el=document.createElement('div');
+      el.className='ac-item';
+      el.innerHTML=`<span class="regime-badge" style="color:${rc.c};background:${rc.bg}">${c.regime}</span>
+        <span class="ac-name" title="${c.nominativo}">${c.nominativo}</span>
+        <span style="font-size:.65rem;color:${sc};white-space:nowrap">${STATI_LABELS[c.stato]||''}</span>`;
+      el.addEventListener('mousedown',()=>acSelectCliente(c));
+      drop.appendChild(el);
+    });
   }
   drop.classList.remove('hidden');
 }
@@ -371,26 +492,26 @@ function acHide(){
   document.getElementById('acDropdown').classList.add('hidden');
 }
 
-function acSelect(idx, nominativo, regime, stato){
+function acSelectCliente(c){
+  const nominativo=c.nominativo, regime=c.regime, stato=c.stato;
   document.getElementById('acSearch').value = nominativo;
   document.getElementById('acDropdown').classList.add('hidden');
 
-  const isCompany = /\b(SRL|SNC|SAS|SPA|HOLDING|ASSOC|COOP|CENTRO|CEA|CISL|FONDAZ)/i.test(nominativo);
+  const isCompany = /\b(SRL|SNC|SAS|SPA|HOLDING|ASSOC|COOP|CENTRO|CEA|CISL|FONDAZ|SCUOLA|ALPINI)/i.test(nominativo);
   if(isCompany){
     document.getElementById('fCognome').value = nominativo;
     document.getElementById('fNome').value = '';
   } else {
-    const parts = nominativo.split(' ');
+    const parts = nominativo.trim().split(/\s+/);
     document.getElementById('fCognome').value = parts[0] || '';
     document.getElementById('fNome').value = parts.slice(1).join(' ');
   }
 
-  const tipoSuggerito = stato===4 ? 'discussione' : 'dichiarazione';
-  document.getElementById('fTipo').value = tipoSuggerito;
+  document.getElementById('fTipo').value = stato===4 ? 'discussione' : 'dichiarazione';
 
   const rc = REGIME_COLORS[regime]||{c:'#6b7280',bg:'#f3f4f6'};
   const hint = document.getElementById('trackerHint');
-  hint.innerHTML = `<span class="regime-badge" style="color:${rc.c};background:${rc.bg};font-size:.7rem">${regime}</span> ${REGIMI[regime]||''} · Stato: <strong>${STATI_LABELS[stato]||''}</strong>`;
+  hint.innerHTML = `<span class="regime-badge" style="color:${rc.c};background:${rc.bg};font-size:.7rem">${regime}</span>&nbsp;<strong>${REGIMI[regime]||regime}</strong> &nbsp;·&nbsp; Stato DR: <strong>${STATI_LABELS[stato]||''}</strong>`;
   hint.classList.add('visible');
 }
 
@@ -412,8 +533,9 @@ function render(){
     h.innerHTML=`<div>${DAYS_SHORT[i]}</div><div style="font-size:.9rem;font-weight:400">${fmtShort(d)}</div>`;
   });
 
+  const s=loadSettings();
   renderGroup(cal,days,MORNING);
-  addEl(cal,'div','br-label','13–15');
+  addEl(cal,'div','br-label',`${s.me}–${s.ps}`);
   days.forEach(()=>addEl(cal,'div','br-cell','— pausa pranzo —'));
   renderGroup(cal,days,AFTERNOON);
 
@@ -528,11 +650,16 @@ function loadAiConfig(){
   const key=localStorage.getItem(provider==='openai'?'bdz_key_openai':'bdz_key_gemini')||'';
   document.getElementById('aiKey').value=key;
 }
-function saveAiConfig(){
+function onProviderChange(){
   const provider=document.getElementById('aiProvider').value;
-  const key=document.getElementById('aiKey').value;
   localStorage.setItem('bdz_ai_provider',provider);
-  localStorage.setItem(provider==='openai'?'bdz_key_openai':'bdz_key_gemini',key);
+  // carica la chiave già salvata per questo provider (non sovrascrive)
+  const key=localStorage.getItem(provider==='openai'?'bdz_key_openai':'bdz_key_gemini')||'';
+  document.getElementById('aiKey').value=key;
+}
+function onKeyInput(){
+  const provider=document.getElementById('aiProvider').value;
+  localStorage.setItem(provider==='openai'?'bdz_key_openai':'bdz_key_gemini', document.getElementById('aiKey').value);
 }
 
 async function aiSend(q){
@@ -605,11 +732,10 @@ function buildAiSystem(){
     ?'Nessun appuntamento questa settimana.'
     :weekAppts.map(a=>`${a.giorno} ${a.data} ore ${a.ora} | ${a.cliente} | ${a.tipo} | ${a.modalita}${a.contatto?' | '+a.contatto:''}${a.note?' | Note: '+a.note:''}`).join('\n');
 
-  // Tracker data
-  const tracker=trackerClienti.slice(0,80); // limit for context
-  const trackerText=tracker.length===0
-    ?'DR Tracker non disponibile (nessun dato in bdz_dr_tracker localStorage).'
-    :tracker.map(c=>`${c.regime} | ${c.nominativo} | Stato:${c.stato}(${STATI_LABELS[c.stato]||''})`).join('\n');
+  // Clienti agenda
+  const trackerText=clientiAgenda.length===0
+    ?'Nessun cliente caricato (usa "Carica clienti" nella toolbar).'
+    :clientiAgenda.slice(0,100).map(c=>`${c.regime}(${REGIMI[c.regime]||c.regime}) | ${c.nominativo} | Stato:${c.stato}(${STATI_LABELS[c.stato]||''})`).join('\n');
 
   const d=new Date();
   return `Sei l'assistente agenda per Studio BDZ — Dott. Fabio Zambelli, Commercialista, Verona.
@@ -619,7 +745,7 @@ Settimana corrente: ${fmtShort(days[0])} – ${fmtShort(days[4])} ${days[0].getF
 APPUNTAMENTI SETTIMANA CORRENTE (${weekAppts.length} totali):
 ${apptText}
 
-CLIENTI DAL DR TRACKER DICHIARAZIONI REDDITI (${trackerClienti.length} clienti):
+CLIENTI DR TRACKER (${clientiAgenda.length} totali):
 ${trackerText}
 
 REGIMI FISCALI: S=Semplificato, F=Forfettario, A=Associazione, O=Ordinario, K=Soc.Capitali
@@ -757,14 +883,15 @@ document.addEventListener('keydown',e=>{
 });
 
 // ── INIT ──
-trackerClienti=loadTrackerClienti();
+rebuildSlots();
+loadClientiAgenda();
 loadAiConfig();
 render();
 
 // Reload tracker if DR Tracker app updates it
 window.addEventListener('storage',e=>{
-  if(e.key==='bdz_dr_tracker') trackerClienti=loadTrackerClienti();
-  if(e.key==='agenda_v1') db=JSON.parse(e.newValue||'{}');
+  if(e.key==='agenda_clienti'){ try{ clientiAgenda=JSON.parse(e.newValue||'[]'); updateClientiBadge(); }catch{} }
+  if(e.key==='agenda_v1'){ try{ db=JSON.parse(e.newValue||'{}'); }catch{} }
 });
 </script>
 </body>
