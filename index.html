@@ -5,297 +5,144 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agenda Studio — Dichiarazioni Redditi</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f0f4f8;
-  color: #2d3748;
-  min-height: 100vh;
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#2d3748;min-height:100vh}
 
 /* ── HEADER ── */
-header {
-  background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
-  color: white;
-  padding: 0.85rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-}
-header h1 { font-size: 1.15rem; font-weight: 700; white-space: nowrap; }
-header h1 span { font-weight: 300; opacity: .8; }
+header{background:linear-gradient(135deg,#1a365d 0%,#2b6cb0 100%);color:white;padding:.85rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+header h1{font-size:1.15rem;font-weight:700;white-space:nowrap}
+header h1 span{font-weight:300;opacity:.8}
+.nav-week{display:flex;align-items:center;gap:.4rem;margin-left:auto;flex-wrap:wrap}
+.btn-nav{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:white;padding:.38rem .75rem;border-radius:5px;cursor:pointer;font-size:.82rem;font-weight:500;transition:background .15s}
+.btn-nav:hover{background:rgba(255,255,255,.32)}
+.btn-nav.accent{background:rgba(255,255,255,.32);border-color:rgba(255,255,255,.5)}
+.btn-nav.ai-btn{background:rgba(74,222,128,.2);border-color:rgba(74,222,128,.4);color:#bbf7d0}
+.btn-nav.ai-btn:hover{background:rgba(74,222,128,.35)}
+.week-label{font-weight:600;font-size:.9rem;min-width:195px;text-align:center;background:rgba(255,255,255,.12);padding:.38rem .85rem;border-radius:5px}
+.week-count{font-size:.72rem;background:rgba(255,255,255,.18);padding:.15rem .5rem;border-radius:10px;margin-left:.3rem}
 
-.nav-week {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-left: auto;
-  flex-wrap: wrap;
-}
-.btn-nav {
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: white;
-  padding: 0.38rem 0.75rem;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 500;
-  transition: background .15s;
-}
-.btn-nav:hover { background: rgba(255,255,255,0.32); }
-.btn-nav.accent { background: rgba(255,255,255,0.32); border-color: rgba(255,255,255,0.5); }
-.week-label {
-  font-weight: 600;
-  font-size: 0.9rem;
-  min-width: 195px;
-  text-align: center;
-  background: rgba(255,255,255,0.12);
-  padding: 0.38rem 0.85rem;
-  border-radius: 5px;
-}
+/* ── MONDAY BANNER ── */
+.monday-banner{background:linear-gradient(135deg,#065f46,#047857);color:white;padding:.7rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.monday-banner.hidden{display:none}
+.monday-banner p{font-size:.85rem;flex:1}
+.monday-banner strong{font-size:.95rem}
+.banner-close{background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:1.1rem;margin-left:auto}
 
 /* ── TOOLBAR ── */
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.55rem 1.5rem;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
-  flex-wrap: wrap;
-}
-.legend { display: flex; gap: 0.85rem; flex-wrap: wrap; align-items: center; }
-.legend-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; color: #4a5568; }
-.legend-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
-.toolbar-hint { margin-left: auto; font-size: 0.75rem; color: #a0aec0; }
-
-.io-btns { display: flex; gap: 0.4rem; }
-.btn-sm {
-  background: #edf2f7;
-  border: 1px solid #cbd5e0;
-  color: #4a5568;
-  padding: 0.3rem 0.65rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.78rem;
-  font-weight: 500;
-  transition: background .15s;
-}
-.btn-sm:hover { background: #e2e8f0; }
+.toolbar{display:flex;align-items:center;gap:1rem;padding:.55rem 1.5rem;background:white;border-bottom:1px solid #e2e8f0;flex-wrap:wrap}
+.legend{display:flex;gap:.85rem;flex-wrap:wrap;align-items:center}
+.legend-item{display:flex;align-items:center;gap:.35rem;font-size:.78rem;color:#4a5568}
+.legend-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.io-btns{display:flex;gap:.4rem;margin-left:auto}
+.btn-sm{background:#edf2f7;border:1px solid #cbd5e0;color:#4a5568;padding:.3rem .65rem;border-radius:4px;cursor:pointer;font-size:.78rem;font-weight:500;transition:background .15s}
+.btn-sm:hover{background:#e2e8f0}
+.btn-sm.email{background:#dcfce7;border-color:#86efac;color:#15803d}
+.btn-sm.email:hover{background:#bbf7d0}
 
 /* ── CALENDAR ── */
-.calendar-wrap { padding: 0.85rem 1.5rem 2rem; overflow-x: auto; }
-
-.calendar {
-  display: grid;
-  grid-template-columns: 54px repeat(5, 1fr);
-  min-width: 680px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-}
-
-/* Header row */
-.ch {
-  background: #ebf4ff;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-align: center;
-  padding: 0.55rem 0.3rem;
-  border-bottom: 2px solid #bee3f8;
-  line-height: 1.3;
-  color: #2c5282;
-}
-.ch:not(:last-child) { border-right: 1px solid #bee3f8; }
-.ch.today {
-  background: #2b6cb0;
-  color: white;
-  border-bottom-color: #1a365d;
-}
-.ch.corner { background: #f7fafc; border-right: 1px solid #e2e8f0; }
-
-/* Time labels */
-.tl {
-  font-size: 0.68rem;
-  color: #718096;
-  text-align: right;
-  padding: 0 5px;
-  background: #f7fafc;
-  border-right: 1px solid #e2e8f0;
-  border-bottom: 1px solid #f0f4f8;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  user-select: none;
-}
-.tl.half { color: #b0bec5; font-size: 0.64rem; }
-
-/* Slot cells */
-.slot {
-  border-bottom: 1px solid #edf2f7;
-  border-right: 1px solid #edf2f7;
-  min-height: 46px;
-  cursor: pointer;
-  position: relative;
-  transition: background .12s;
-}
-.slot:last-child { border-right: none; }
-.slot:hover { background: #ebf8ff; }
-.slot.half-hour { border-bottom-style: dashed; border-bottom-color: #f0f4f8; }
-.slot.booked { background: #fff; cursor: default; }
-.slot.booked:hover { background: #fff; }
-
-/* Appointment block */
-.appt {
-  position: absolute;
-  inset: 2px;
-  border-radius: 5px;
-  padding: 4px 6px;
-  font-size: 0.73rem;
-  line-height: 1.35;
-  overflow: hidden;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  transition: filter .12s, transform .1s;
-}
-.appt:hover { filter: brightness(1.08); transform: scale(1.01); }
-.appt.dichiarazione { background: #3182ce; color: white; }
-.appt.discussione   { background: #38a169; color: white; }
-.appt.altro         { background: #805ad5; color: white; }
-.appt strong { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
-.appt .sub { font-size: 0.64rem; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* Break row */
-.br-label {
-  background: #fffbeb;
-  border-right: 1px solid #fbd38d;
-  border-bottom: 1px solid #fbd38d;
-  border-top: 1px solid #fbd38d;
-  font-size: 0.64rem;
-  color: #b7791f;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 5px;
-  font-weight: 600;
-}
-.br-cell {
-  background: #fffbeb;
-  border-bottom: 1px solid #fbd38d;
-  border-top: 1px solid #fbd38d;
-  border-right: 1px dashed #fbd38d;
-  min-height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.68rem;
-  color: #c6923a;
-}
+.calendar-wrap{padding:.85rem 1.5rem 2rem;overflow-x:auto;transition:margin-right .25s}
+.calendar-wrap.ai-open{margin-right:390px}
+.calendar{display:grid;grid-template-columns:54px repeat(5,1fr);min-width:680px;background:white;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden;border:1px solid #e2e8f0}
+.ch{background:#ebf4ff;font-size:.8rem;font-weight:700;text-align:center;padding:.55rem .3rem;border-bottom:2px solid #bee3f8;line-height:1.3;color:#2c5282}
+.ch:not(:last-child){border-right:1px solid #bee3f8}
+.ch.today{background:#2b6cb0;color:white;border-bottom-color:#1a365d}
+.ch.corner{background:#f7fafc;border-right:1px solid #e2e8f0}
+.tl{font-size:.68rem;color:#718096;text-align:right;padding:0 5px;background:#f7fafc;border-right:1px solid #e2e8f0;border-bottom:1px solid #f0f4f8;display:flex;align-items:center;justify-content:flex-end;user-select:none}
+.tl.half{color:#b0bec5;font-size:.64rem}
+.slot{border-bottom:1px solid #edf2f7;border-right:1px solid #edf2f7;min-height:46px;cursor:pointer;position:relative;transition:background .12s}
+.slot:last-child{border-right:none}
+.slot:hover{background:#ebf8ff}
+.slot.half-hour{border-bottom-style:dashed;border-bottom-color:#f0f4f8}
+.slot.booked{background:#fff;cursor:default}
+.slot.booked:hover{background:#fff}
+.appt{position:absolute;inset:2px;border-radius:5px;padding:4px 6px;font-size:.73rem;line-height:1.35;overflow:hidden;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.15);transition:filter .12s,transform .1s}
+.appt:hover{filter:brightness(1.08);transform:scale(1.01)}
+.appt.dichiarazione{background:#3182ce;color:white}
+.appt.discussione{background:#38a169;color:white}
+.appt.altro{background:#805ad5;color:white}
+.appt strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+.appt .sub{font-size:.63rem;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appt .online-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#bbf7d0;margin-right:3px}
+.br-label{background:#fffbeb;border-right:1px solid #fbd38d;border-bottom:1px solid #fbd38d;border-top:1px solid #fbd38d;font-size:.64rem;color:#b7791f;display:flex;align-items:center;justify-content:flex-end;padding:0 5px;font-weight:600}
+.br-cell{background:#fffbeb;border-bottom:1px solid #fbd38d;border-top:1px solid #fbd38d;border-right:1px dashed #fbd38d;min-height:28px;display:flex;align-items:center;justify-content:center;font-size:.68rem;color:#c6923a}
 
 /* ── MODAL ── */
-.overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-.overlay.open { display: flex; }
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:white;border-radius:10px;width:460px;max-width:100%;box-shadow:0 20px 40px rgba(0,0,0,.25);overflow:hidden;animation:slideUp .18s ease}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-head{background:linear-gradient(135deg,#1a365d,#2b6cb0);color:white;padding:1rem 1.25rem}
+.modal-head h2{font-size:1rem;font-weight:700;margin-bottom:.2rem}
+.slot-badge{font-size:.78rem;opacity:.85;background:rgba(255,255,255,.15);display:inline-block;padding:.15rem .5rem;border-radius:3px;margin-top:.3rem}
+.modal-body{padding:1.1rem 1.25rem}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.fg{margin-bottom:.8rem}
+.fg label{display:block;font-size:.77rem;font-weight:700;color:#4a5568;margin-bottom:.28rem;letter-spacing:.02em}
+.fg input,.fg select,.fg textarea{width:100%;padding:.42rem .6rem;border:1px solid #cbd5e0;border-radius:5px;font-size:.875rem;outline:none;font-family:inherit;background:#fafafa;transition:border .15s,box-shadow .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#3182ce;box-shadow:0 0 0 3px rgba(49,130,206,.18);background:white}
+.fg textarea{resize:vertical;min-height:72px}
+.modal-foot{display:flex;gap:.5rem;justify-content:flex-end;padding:.85rem 1.25rem;background:#f7fafc;border-top:1px solid #e2e8f0}
+.btn{padding:.45rem 1rem;border:none;border-radius:5px;cursor:pointer;font-size:.855rem;font-weight:600;transition:background .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:#3182ce;color:white}.btn-primary:hover{background:#2c5282}
+.btn-danger{background:#e53e3e;color:white}.btn-danger:hover{background:#c53030}
+.btn-secondary{background:#edf2f7;color:#4a5568}.btn-secondary:hover{background:#e2e8f0}
+.req{color:#e53e3e}
 
-.modal {
-  background: white;
-  border-radius: 10px;
-  width: 440px;
-  max-width: 100%;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-  overflow: hidden;
-  animation: slideUp .18s ease;
-}
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-.modal-head {
-  background: linear-gradient(135deg, #1a365d, #2b6cb0);
-  color: white;
-  padding: 1rem 1.25rem;
-}
-.modal-head h2 { font-size: 1rem; font-weight: 700; margin-bottom: .2rem; }
-.modal-head .slot-badge {
-  font-size: 0.78rem;
-  opacity: .85;
-  background: rgba(255,255,255,.15);
-  display: inline-block;
-  padding: .15rem .5rem;
-  border-radius: 3px;
-  margin-top: .3rem;
-}
+/* ── AUTOCOMPLETE ── */
+.ac-wrap{position:relative}
+.ac-search{width:100%;padding:.42rem .6rem;border:1px solid #bee3f8;border-radius:5px;font-size:.875rem;outline:none;font-family:inherit;background:#ebf8ff;transition:border .15s}
+.ac-search:focus{border-color:#3182ce;box-shadow:0 0 0 3px rgba(49,130,206,.18);background:white}
+.ac-search::placeholder{color:#90cdf4}
+.ac-dropdown{position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #cbd5e0;border-top:none;border-radius:0 0 6px 6px;max-height:210px;overflow-y:auto;z-index:400;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.ac-dropdown.hidden{display:none}
+.ac-item{padding:.4rem .7rem;cursor:pointer;font-size:.8rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid #f0f4f8}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover{background:#ebf4ff}
+.ac-item.no-results{color:#a0aec0;cursor:default;font-style:italic}
+.ac-item.no-results:hover{background:white}
+.regime-badge{padding:.1rem .35rem;border-radius:3px;font-size:.65rem;font-weight:800;flex-shrink:0}
+.ac-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stato-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tracker-hint{font-size:.7rem;color:#68d391;margin-top:.25rem;display:none}
+.tracker-hint.visible{display:block}
 
-.modal-body { padding: 1.1rem 1.25rem; }
-.frow { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
-.fg { margin-bottom: .8rem; }
-.fg label { display: block; font-size: .77rem; font-weight: 700; color: #4a5568; margin-bottom: .28rem; letter-spacing: .02em; }
-.fg input, .fg select, .fg textarea {
-  width: 100%;
-  padding: .42rem .6rem;
-  border: 1px solid #cbd5e0;
-  border-radius: 5px;
-  font-size: .875rem;
-  outline: none;
-  font-family: inherit;
-  background: #fafafa;
-  transition: border .15s, box-shadow .15s;
-}
-.fg input:focus, .fg select:focus, .fg textarea:focus {
-  border-color: #3182ce;
-  box-shadow: 0 0 0 3px rgba(49,130,206,.18);
-  background: white;
-}
-.fg textarea { resize: vertical; min-height: 72px; }
+/* ── AI PANEL ── */
+.ai-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:149}
+.ai-overlay.visible{display:block}
+.ai-panel{position:fixed;top:0;right:0;bottom:0;width:385px;background:white;box-shadow:-4px 0 20px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .25s ease;z-index:150;display:flex;flex-direction:column}
+.ai-panel.open{transform:translateX(0)}
+.ai-header{background:linear-gradient(135deg,#1a365d,#2b6cb0);color:white;padding:1rem 1.2rem;display:flex;align-items:center;justify-content:space-between}
+.ai-header h3{font-size:.95rem;font-weight:700}
+.ai-header p{font-size:.72rem;opacity:.75;margin-top:.15rem}
+.ai-close{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:1.2rem;line-height:1;padding:.2rem}
+.ai-close:hover{color:white}
+.ai-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.65rem;padding:.85rem;background:#f7fafc}
+.msg{max-width:90%;padding:.6rem .85rem;border-radius:10px;font-size:.8rem;line-height:1.65;word-break:break-word}
+.msg-u{align-self:flex-end;background:#2b6cb0;color:white;border-radius:10px 10px 3px 10px}
+.msg-a{align-self:flex-start;background:white;border:1px solid #e2e8f0;color:#2d3748;border-radius:10px 10px 10px 3px;white-space:pre-wrap}
+.msg-a.spin{color:#a0aec0;font-style:italic}
+.ai-quick{padding:.6rem .85rem;background:#f0f4f8;border-top:1px solid #e2e8f0;display:flex;flex-wrap:wrap;gap:.35rem}
+.qbtn{padding:.3rem .6rem;border:1px solid #cbd5e0;border-radius:5px;font-size:.72rem;cursor:pointer;background:white;color:#4a5568;transition:all .12s;font-family:inherit}
+.qbtn:hover{border-color:#3182ce;color:#2b6cb0;background:#ebf4ff}
+.ai-inp-row{display:flex;gap:.5rem;padding:.7rem .85rem;background:white;border-top:1px solid #e2e8f0}
+.ai-ta{flex:1;padding:.45rem .65rem;border:1px solid #cbd5e0;border-radius:5px;font-family:inherit;font-size:.8rem;outline:none;resize:none;height:38px;transition:border .15s;overflow:hidden}
+.ai-ta:focus{border-color:#3182ce;box-shadow:0 0 0 2px rgba(49,130,206,.15)}
+.ai-send{padding:.4rem .9rem;background:#2b6cb0;color:white;border:none;border-radius:5px;cursor:pointer;font-size:.8rem;font-weight:600;white-space:nowrap}
+.ai-send:hover{background:#2c5282}
+.ai-send:disabled{opacity:.45;cursor:not-allowed}
+.ai-config{padding:.75rem .85rem;border-top:1px solid #e2e8f0;background:#fafafa}
+.ai-config-row{display:flex;gap:.4rem;align-items:center;margin-bottom:.4rem}
+.ai-config label{font-size:.7rem;font-weight:700;color:#4a5568;white-space:nowrap}
+.ai-config select{flex:1;padding:.28rem .5rem;border:1px solid #cbd5e0;border-radius:4px;font-size:.75rem;outline:none;font-family:inherit;background:white}
+.ai-config input[type=password]{flex:1;padding:.28rem .5rem;border:1px solid #cbd5e0;border-radius:4px;font-size:.75rem;outline:none;font-family:inherit;background:white}
+.ai-config input:focus,.ai-config select:focus{border-color:#3182ce}
+.ai-config .hint{font-size:.67rem;color:#a0aec0;margin-top:.2rem}
 
-.modal-foot {
-  display: flex;
-  gap: .5rem;
-  justify-content: flex-end;
-  padding: .85rem 1.25rem;
-  background: #f7fafc;
-  border-top: 1px solid #e2e8f0;
-}
-.btn { padding: .45rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-size: .855rem; font-weight: 600; transition: background .15s, transform .1s; }
-.btn:active { transform: scale(.97); }
-.btn-primary   { background: #3182ce; color: white; }
-.btn-primary:hover { background: #2c5282; }
-.btn-danger    { background: #e53e3e; color: white; }
-.btn-danger:hover { background: #c53030; }
-.btn-secondary { background: #edf2f7; color: #4a5568; }
-.btn-secondary:hover { background: #e2e8f0; }
+/* ONLINE BADGE */
+.online-badge{display:inline-block;padding:.08rem .35rem;border-radius:3px;font-size:.65rem;font-weight:700;background:#dcfce7;color:#15803d;margin-left:.3rem}
 
-/* required star */
-.req { color: #e53e3e; }
-
-/* counter badge */
-.week-count {
-  font-size: .72rem;
-  background: rgba(255,255,255,.18);
-  padding: .15rem .5rem;
-  border-radius: 10px;
-  margin-left: .3rem;
-}
-
-@media print {
-  header .nav-week, .toolbar .io-btns, .toolbar-hint { display: none !important; }
-  .calendar-wrap { padding: 0; }
-  .calendar { box-shadow: none; border: 1px solid #ccc; }
-}
+@media print{header .nav-week,.toolbar .io-btns,.toolbar .btn-sm,.ai-panel,.ai-overlay,.monday-banner{display:none!important}.calendar-wrap{padding:0}.calendar{box-shadow:none;border:1px solid #ccc}}
 </style>
 </head>
 <body>
@@ -307,29 +154,89 @@ header h1 span { font-weight: 300; opacity: .8; }
     <span class="week-label" id="weekLabel">—</span>
     <button class="btn-nav" onclick="changeWeek(1)">Succ &#8594;</button>
     <button class="btn-nav accent" onclick="goToToday()">Oggi</button>
+    <button class="btn-nav ai-btn" onclick="toggleAI(true)" id="btnAI">🤖 AI Assistente</button>
     <button class="btn-nav" onclick="window.print()">🖨️ Stampa</button>
   </div>
 </header>
+
+<!-- Monday Banner -->
+<div class="monday-banner hidden" id="mondayBanner">
+  <span style="font-size:1.3rem">📬</span>
+  <p><strong>Buon lunedì!</strong> Hai appuntamenti questa settimana. Vuoi inviare il riepilogo per email?</p>
+  <button class="btn-sm email" onclick="sendWeekEmail()">📧 Invia riepilogo</button>
+  <button class="banner-close" onclick="closeBanner()">✕</button>
+</div>
 
 <div class="toolbar">
   <div class="legend">
     <span class="legend-item"><span class="legend-dot" style="background:#3182ce"></span>Dichiarazione Redditi</span>
     <span class="legend-item"><span class="legend-dot" style="background:#38a169"></span>Discussione</span>
     <span class="legend-item"><span class="legend-dot" style="background:#805ad5"></span>Altro</span>
+    <span class="legend-item"><span style="font-size:.9rem">🟢</span>Online/Teams</span>
   </div>
   <div class="io-btns">
+    <button class="btn-sm email" onclick="sendWeekEmail()" title="Invia riepilogo settimana via Gmail">📧 Email settimana</button>
     <button class="btn-sm" onclick="exportData()">⬇ Esporta JSON</button>
     <button class="btn-sm" onclick="document.getElementById('importFile').click()">⬆ Importa JSON</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
   </div>
-  <span class="toolbar-hint">Clicca slot libero per aggiungere • Clicca appuntamento per modificare</span>
 </div>
 
-<div class="calendar-wrap">
+<div class="calendar-wrap" id="calendarWrap">
   <div class="calendar" id="cal"></div>
 </div>
 
-<!-- Modal -->
+<!-- AI Side Panel -->
+<div class="ai-overlay" id="aiOverlay" onclick="toggleAI(false)"></div>
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-header">
+    <div>
+      <h3>🤖 AI Assistente Agenda</h3>
+      <p>Analisi appuntamenti · Promemoria · Distribuzione</p>
+    </div>
+    <button class="ai-close" onclick="toggleAI(false)">✕</button>
+  </div>
+  <div class="ai-msgs" id="aiMsgs">
+    <div class="msg msg-a">Ciao Fabio! Sono il tuo assistente agenda.
+
+Posso aiutarti con:
+• Riepilogo settimana e distribuzione
+• Promemoria (link Teams, documenti)
+• Clienti ancora da schedulare dal Tracker
+• Priorità in base allo stato DR
+
+Configura la API key in basso, poi usa i pulsanti rapidi o scrivi liberamente.</div>
+  </div>
+  <div class="ai-quick" id="aiQuick">
+    <button class="qbtn" onclick="aiSend('Fammi un riepilogo degli appuntamenti di questa settimana con distribuzione per giorno e tipo.')">📊 Riepilogo settimana</button>
+    <button class="qbtn" onclick="aiSend('Per gli appuntamenti online di questa settimana, ricordami cosa devo inviare al cliente.')">🔗 Promemoria Teams</button>
+    <button class="qbtn" onclick="aiSend('Guardando il DR Tracker, quali clienti non sono ancora stati schedulati questa settimana? Suggerisci chi potrebbe avere priorità.')">👥 Da schedulare</button>
+    <button class="qbtn" onclick="aiSend('Come è distribuito il carico di lavoro questa settimana? Ci sono giorni troppo pieni o vuoti? Suggerimenti.')">⚖️ Bilanciamento</button>
+    <button class="qbtn" onclick="aiSend('Per ogni appuntamento di questa settimana, suggerisci i documenti principali da richiedere al cliente in base al tipo di dichiarazione e regime fiscale.')">📋 Documenti necessari</button>
+    <button class="qbtn" onclick="sendWeekEmail()">📧 Invia email settimana</button>
+  </div>
+  <div class="ai-inp-row">
+    <textarea class="ai-ta" id="aiInput" placeholder="Scrivi una domanda… (Invio invia, Shift+Invio va a capo)"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}"></textarea>
+    <button class="ai-send" id="aiSendBtn" onclick="aiSend()">Invia</button>
+  </div>
+  <div class="ai-config">
+    <div class="ai-config-row">
+      <label>Provider</label>
+      <select id="aiProvider" onchange="saveAiConfig()">
+        <option value="openai">OpenAI GPT-4o mini</option>
+        <option value="gemini">Gemini 2.0 Flash</option>
+      </select>
+    </div>
+    <div class="ai-config-row">
+      <label>API Key</label>
+      <input type="password" id="aiKey" placeholder="sk-… oppure AIza…" oninput="saveAiConfig()">
+    </div>
+    <div class="hint">Chiave salvata nel browser. Stessa usata dal DR Tracker.</div>
+  </div>
+</div>
+
+<!-- Appointment Modal -->
 <div class="overlay" id="overlay" onclick="closeOverlay(event)">
   <div class="modal">
     <div class="modal-head">
@@ -337,23 +244,43 @@ header h1 span { font-weight: 300; opacity: .8; }
       <div class="slot-badge" id="mSlotBadge"></div>
     </div>
     <div class="modal-body">
+      <!-- Tracker search -->
+      <div class="fg">
+        <label>🔍 Cerca cliente dal Tracker DR</label>
+        <div class="ac-wrap">
+          <input type="text" class="ac-search" id="acSearch" placeholder="Digita nome cliente…" autocomplete="off"
+            oninput="acFilter(this.value)" onblur="setTimeout(acHide,180)" onfocus="acFilter(this.value)">
+          <div class="ac-dropdown hidden" id="acDropdown"></div>
+        </div>
+        <div class="tracker-hint" id="trackerHint"></div>
+      </div>
       <div class="frow">
         <div class="fg">
-          <label>Nome <span class="req">*</span></label>
-          <input id="fNome" type="text" placeholder="es. Mario" autocomplete="off">
-        </div>
-        <div class="fg">
-          <label>Cognome <span class="req">*</span></label>
+          <label>Cognome / Ragione Sociale <span class="req">*</span></label>
           <input id="fCognome" type="text" placeholder="es. Rossi" autocomplete="off">
         </div>
+        <div class="fg">
+          <label>Nome</label>
+          <input id="fNome" type="text" placeholder="es. Mario" autocomplete="off">
+        </div>
       </div>
-      <div class="fg">
-        <label>Tipo appuntamento</label>
-        <select id="fTipo">
-          <option value="dichiarazione">📋 Dichiarazione Redditi</option>
-          <option value="discussione">💬 Discussione</option>
-          <option value="altro">📌 Altro</option>
-        </select>
+      <div class="frow">
+        <div class="fg">
+          <label>Tipo appuntamento</label>
+          <select id="fTipo">
+            <option value="dichiarazione">📋 Dichiarazione Redditi</option>
+            <option value="discussione">💬 Discussione</option>
+            <option value="altro">📌 Altro</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Modalità</label>
+          <select id="fModalita">
+            <option value="presenza">🏢 In presenza</option>
+            <option value="online">💻 Online / Teams</option>
+            <option value="telefono">📞 Telefono</option>
+          </select>
+        </div>
       </div>
       <div class="fg">
         <label>Telefono / Email</label>
@@ -361,7 +288,7 @@ header h1 span { font-weight: 300; opacity: .8; }
       </div>
       <div class="fg">
         <label>Note</label>
-        <textarea id="fNote" placeholder="Documenti necessari, argomenti da trattare..."></textarea>
+        <textarea id="fNote" placeholder="Documenti necessari, argomenti da trattare…"></textarea>
       </div>
     </div>
     <div class="modal-foot">
@@ -373,256 +300,472 @@ header h1 span { font-weight: 300; opacity: .8; }
 </div>
 
 <script>
-// ── STATE ──
-let weekStart = getMonday(new Date());
-let db = JSON.parse(localStorage.getItem('agenda_v1') || '{}');
-let mDate = null, mTime = null, mKey = null;
-
 // ── CONSTANTS ──
 const DAYS_SHORT = ['Lun','Mar','Mer','Gio','Ven'];
 const DAYS_FULL  = ['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì'];
 const MONTHS = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+const EMAIL_TO = 'fabio.zambelli1973@gmail.com';
+const REGIMI = {S:'Semplificato',F:'Forfettario',A:'Associazione',O:'Ordinario',K:'Soc. Capitali'};
+const REGIME_COLORS = {S:{c:'#1d4ed8',bg:'#dbeafe'},F:{c:'#6d28d9',bg:'#ede9fe'},A:{c:'#b45309',bg:'#fef3c7'},O:{c:'#0f766e',bg:'#ccfbf1'},K:{c:'#be123c',bg:'#ffe4e6'}};
+const STATI_LABELS = ['Da elaborare','Compilata','Terminata (annotaz.)','Terminata definitiv.','Discussa con cliente'];
+const STATI_COLORS = ['#9ca3af','#fbbf24','#60a5fa','#4ade80','#22c55e'];
+const MORNING   = buildSlots(9, 13);
+const AFTERNOON = buildSlots(15, 18);
 
-const MORNING = buildSlots(9, 13);   // 09:00 … 12:30
-const AFTERNOON = buildSlots(15, 18); // 15:00 … 17:30
-
-function buildSlots(from, to) {
-  const s = [];
-  for (let h = from; h < to; h++) {
-    s.push(pad(h) + ':00');
-    s.push(pad(h) + ':30');
-  }
-  return s;
-}
+// ── STATE ──
+let weekStart = getMonday(new Date());
+let db = JSON.parse(localStorage.getItem('agenda_v1') || '{}');
+let mDate = null, mTime = null, mKey = null;
+let trackerClienti = [];
+let aiLoading = false;
 
 // ── HELPERS ──
-function pad(n) { return String(n).padStart(2,'0'); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function buildSlots(from, to){
+  const s=[];
+  for(let h=from;h<to;h++){ s.push(pad(h)+':00'); s.push(pad(h)+':30'); }
+  return s;
+}
+function getMonday(d){
+  const day=d.getDay(), diff=day===0?-6:1-day;
+  const m=new Date(d); m.setDate(m.getDate()+diff); m.setHours(0,0,0,0); return m;
+}
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function isoDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function isToday(d){ return isoDate(d)===isoDate(new Date()); }
+function isMonday(d){ return d.getDay()===1; }
+function fmtShort(d){ return `${pad(d.getDate())}/${pad(d.getMonth()+1)}`; }
+function fmtLong(d){ return `${DAYS_FULL[d.getDay()-1]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
+function fmtFull(d){ return `${DAYS_FULL[d.getDay()-1]} ${d.getDate()} ${MONTHS[d.getMonth()]}`; }
+function apptKey(d,t){ return `${isoDate(d)}@${t}`; }
+function tipoShort(t){ return {dichiarazione:'Dich. Redditi',discussione:'Discussione',altro:'Altro'}[t]||t; }
 
-function getMonday(d) {
-  const day = d.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  const m = new Date(d);
-  m.setDate(m.getDate() + diff);
-  m.setHours(0,0,0,0);
-  return m;
+// ── TRACKER ──
+function loadTrackerClienti(){
+  try{ const s=localStorage.getItem('bdz_dr_tracker'); return s?JSON.parse(s):[];
+  }catch{ return []; }
 }
 
-function addDays(d, n) {
-  const r = new Date(d);
-  r.setDate(r.getDate() + n);
-  return r;
+function acFilter(q){
+  const drop=document.getElementById('acDropdown');
+  const v=q.trim().toUpperCase();
+  if(v.length<2){ drop.classList.add('hidden'); return; }
+  const matches=trackerClienti.filter(c=>c.nominativo.toUpperCase().includes(v)).slice(0,10);
+  if(!matches.length){
+    drop.innerHTML='<div class="ac-item no-results">Nessun risultato nel Tracker DR</div>';
+  } else {
+    drop.innerHTML=matches.map((c,i)=>{
+      const rc=REGIME_COLORS[c.regime]||{c:'#6b7280',bg:'#f3f4f6'};
+      const sc=STATI_COLORS[c.stato]||'#9ca3af';
+      return `<div class="ac-item" onmousedown="acSelect(${i},'${c.nominativo.replace(/'/g,"\\'")}','${c.regime}',${c.stato})">
+        <span class="regime-badge" style="color:${rc.c};background:${rc.bg}">${c.regime}</span>
+        <span class="ac-name">${c.nominativo}</span>
+        <span class="stato-dot" style="background:${sc}" title="${STATI_LABELS[c.stato]||''}"></span>
+      </div>`;
+    }).join('');
+  }
+  drop.classList.remove('hidden');
 }
 
-function isoDate(d) {
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+function acHide(){
+  document.getElementById('acDropdown').classList.add('hidden');
 }
 
-function isToday(d) {
-  const t = new Date();
-  return isoDate(d) === isoDate(t);
+function acSelect(idx, nominativo, regime, stato){
+  document.getElementById('acSearch').value = nominativo;
+  document.getElementById('acDropdown').classList.add('hidden');
+
+  const isCompany = /\b(SRL|SNC|SAS|SPA|HOLDING|ASSOC|COOP|CENTRO|CEA|CISL|FONDAZ)/i.test(nominativo);
+  if(isCompany){
+    document.getElementById('fCognome').value = nominativo;
+    document.getElementById('fNome').value = '';
+  } else {
+    const parts = nominativo.split(' ');
+    document.getElementById('fCognome').value = parts[0] || '';
+    document.getElementById('fNome').value = parts.slice(1).join(' ');
+  }
+
+  const tipoSuggerito = stato===4 ? 'discussione' : 'dichiarazione';
+  document.getElementById('fTipo').value = tipoSuggerito;
+
+  const rc = REGIME_COLORS[regime]||{c:'#6b7280',bg:'#f3f4f6'};
+  const hint = document.getElementById('trackerHint');
+  hint.innerHTML = `<span class="regime-badge" style="color:${rc.c};background:${rc.bg};font-size:.7rem">${regime}</span> ${REGIMI[regime]||''} · Stato: <strong>${STATI_LABELS[stato]||''}</strong>`;
+  hint.classList.add('visible');
 }
 
-function fmtShort(d) {
-  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}`;
-}
+// ── CALENDAR ──
+function render(){
+  const days=Array.from({length:5},(_,i)=>addDays(weekStart,i));
+  const y=days[0].getFullYear();
+  const allSlots=[...MORNING,...AFTERNOON];
+  const count=days.reduce((acc,d)=>acc+allSlots.filter(t=>db[apptKey(d,t)]).length,0);
+  document.getElementById('weekLabel').innerHTML=
+    `${fmtShort(days[0])} – ${fmtShort(days[4])} &nbsp;${y}${count>0?`<span class="week-count">${count} appt</span>`:''}`;
 
-function fmtLong(d) {
-  return `${DAYS_FULL[d.getDay()-1]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-}
+  const cal=document.getElementById('cal');
+  cal.innerHTML='';
 
-function apptKey(d, t) { return `${isoDate(d)}@${t}`; }
-
-// ── RENDER ──
-function render() {
-  const days = Array.from({length:5}, (_,i) => addDays(weekStart, i));
-
-  // Week label
-  const y = days[0].getFullYear();
-  document.getElementById('weekLabel').innerHTML =
-    `${fmtShort(days[0])} – ${fmtShort(days[4])} &nbsp;${y}`;
-
-  const cal = document.getElementById('cal');
-  cal.innerHTML = '';
-
-  // Header
-  addEl(cal, 'div', 'ch corner', '');
-  days.forEach((d, i) => {
-    const h = addEl(cal, 'div', 'ch' + (isToday(d) ? ' today' : ''));
-    h.innerHTML = `<div>${DAYS_SHORT[i]}</div><div style="font-size:.9rem;font-weight:400">${fmtShort(d)}</div>`;
+  addEl(cal,'div','ch corner','');
+  days.forEach((d,i)=>{
+    const h=addEl(cal,'div','ch'+(isToday(d)?' today':''));
+    h.innerHTML=`<div>${DAYS_SHORT[i]}</div><div style="font-size:.9rem;font-weight:400">${fmtShort(d)}</div>`;
   });
 
-  // Morning slots
-  renderGroup(cal, days, MORNING);
+  renderGroup(cal,days,MORNING);
+  addEl(cal,'div','br-label','13–15');
+  days.forEach(()=>addEl(cal,'div','br-cell','— pausa pranzo —'));
+  renderGroup(cal,days,AFTERNOON);
 
-  // Lunch break row
-  addEl(cal, 'div', 'br-label', '13–15');
-  days.forEach(() => addEl(cal, 'div', 'br-cell', '— pausa pranzo —'));
-
-  // Afternoon slots
-  renderGroup(cal, days, AFTERNOON);
-
-  // Update week count badge
-  const count = days.reduce((acc, d) =>
-    acc + [...MORNING, ...AFTERNOON].filter(t => db[apptKey(d,t)]).length, 0);
-  document.getElementById('weekLabel').innerHTML +=
-    count > 0 ? `<span class="week-count">${count} appt</span>` : '';
+  checkMondayBanner(days, count);
 }
 
-function renderGroup(cal, days, slots) {
-  slots.forEach(time => {
-    const isHalf = time.endsWith(':30');
-    addEl(cal, 'div', 'tl' + (isHalf ? ' half' : ''), time);
-
-    days.forEach(d => {
-      const key = apptKey(d, time);
-      const appt = db[key];
-      const cell = addEl(cal, 'div', 'slot' + (isHalf ? ' half-hour' : '') + (appt ? ' booked' : ''));
-
-      if (appt) {
-        const tipo = appt.tipo || 'dichiarazione';
-        const block = addEl(cell, 'div', `appt ${tipo}`);
-        block.innerHTML = `<strong>${appt.cognome} ${appt.nome}</strong><span class="sub">${tipoShort(tipo)}${appt.contatto ? ' · '+appt.contatto : ''}</span>`;
-        block.title = `${appt.nome} ${appt.cognome}\n${appt.note || ''}`;
-        block.onclick = (e) => { e.stopPropagation(); openModal(d, time, key); };
+function renderGroup(cal,days,slots){
+  slots.forEach(time=>{
+    const isHalf=time.endsWith(':30');
+    addEl(cal,'div','tl'+(isHalf?' half':''),time);
+    days.forEach(d=>{
+      const key=apptKey(d,time);
+      const appt=db[key];
+      const cell=addEl(cal,'div','slot'+(isHalf?' half-hour':'')+(appt?' booked':''));
+      if(appt){
+        const tipo=appt.tipo||'dichiarazione';
+        const block=addEl(cell,'div',`appt ${tipo}`);
+        const onlineIcon=appt.modalita==='online'?'<span class="online-dot"></span>':'';
+        const telIcon=appt.modalita==='telefono'?'📞 ':'';
+        block.innerHTML=`<strong>${appt.cognome}${appt.nome?' '+appt.nome:''}</strong><span class="sub">${onlineIcon}${telIcon}${tipoShort(tipo)}${appt.contatto?' · '+appt.contatto:''}</span>`;
+        block.title=`${appt.cognome} ${appt.nome||''}\n${appt.modalita==='online'?'🔗 Online/Teams':appt.modalita==='telefono'?'📞 Telefono':'🏢 In presenza'}\n${appt.note||''}`;
+        block.onclick=(e)=>{e.stopPropagation();openModal(d,time,key);};
       } else {
-        cell.onclick = () => openModal(d, time, null);
+        cell.onclick=()=>openModal(d,time,null);
       }
     });
   });
 }
 
-function addEl(parent, tag, cls, text) {
-  const el = document.createElement(tag);
-  if (cls) el.className = cls;
-  if (text !== undefined) el.textContent = text;
+function addEl(parent,tag,cls,text){
+  const el=document.createElement(tag);
+  if(cls) el.className=cls;
+  if(text!==undefined) el.textContent=text;
   parent.appendChild(el);
   return el;
 }
 
-function tipoShort(t) {
-  return { dichiarazione: 'Dich. Redditi', discussione: 'Discussione', altro: 'Altro' }[t] || t;
+// ── MONDAY BANNER ──
+function checkMondayBanner(days, count){
+  const banner=document.getElementById('mondayBanner');
+  const dismissed=localStorage.getItem('agenda_banner_dismissed');
+  const todayStr=isoDate(new Date());
+  if(isMonday(new Date()) && count>0 && dismissed!==todayStr){
+    banner.classList.remove('hidden');
+  } else {
+    banner.classList.add('hidden');
+  }
+}
+function closeBanner(){
+  localStorage.setItem('agenda_banner_dismissed',isoDate(new Date()));
+  document.getElementById('mondayBanner').classList.add('hidden');
 }
 
 // ── MODAL ──
-function openModal(date, time, key) {
-  mDate = date; mTime = time; mKey = key;
-  const appt = key ? db[key] : null;
-  const isNew = !appt;
-
-  document.getElementById('mTitle').textContent = isNew ? 'Nuovo Appuntamento' : 'Modifica Appuntamento';
-  document.getElementById('mSlotBadge').textContent = `📅 ${fmtLong(date)} – ore ${time}`;
-  document.getElementById('btnDel').style.display = isNew ? 'none' : 'inline-block';
-
-  document.getElementById('fNome').value     = appt?.nome     || '';
-  document.getElementById('fCognome').value  = appt?.cognome  || '';
-  document.getElementById('fTipo').value     = appt?.tipo     || 'dichiarazione';
-  document.getElementById('fContatto').value = appt?.contatto || '';
-  document.getElementById('fNote').value     = appt?.note     || '';
-
+function openModal(date,time,key){
+  mDate=date; mTime=time; mKey=key;
+  const appt=key?db[key]:null;
+  const isNew=!appt;
+  document.getElementById('mTitle').textContent=isNew?'Nuovo Appuntamento':'Modifica Appuntamento';
+  document.getElementById('mSlotBadge').textContent=`📅 ${fmtLong(date)} – ore ${time}`;
+  document.getElementById('btnDel').style.display=isNew?'none':'inline-block';
+  document.getElementById('acSearch').value='';
+  document.getElementById('trackerHint').classList.remove('visible');
+  document.getElementById('acDropdown').classList.add('hidden');
+  document.getElementById('fCognome').value=appt?.cognome||'';
+  document.getElementById('fNome').value=appt?.nome||'';
+  document.getElementById('fTipo').value=appt?.tipo||'dichiarazione';
+  document.getElementById('fModalita').value=appt?.modalita||'presenza';
+  document.getElementById('fContatto').value=appt?.contatto||'';
+  document.getElementById('fNote').value=appt?.note||'';
   document.getElementById('overlay').classList.add('open');
-  setTimeout(() => document.getElementById('fNome').focus(), 80);
+  setTimeout(()=>document.getElementById('acSearch').focus(),80);
 }
-
-function closeModal() {
+function closeModal(){
   document.getElementById('overlay').classList.remove('open');
-  mDate = mTime = mKey = null;
+  mDate=mTime=mKey=null;
+}
+function closeOverlay(e){
+  if(e.target===document.getElementById('overlay')) closeModal();
+}
+function saveAppt(){
+  const cognome=document.getElementById('fCognome').value.trim();
+  if(!cognome){ document.getElementById('fCognome').focus(); return; }
+  const key=mKey||apptKey(mDate,mTime);
+  db[key]={
+    cognome,
+    nome:document.getElementById('fNome').value.trim(),
+    tipo:document.getElementById('fTipo').value,
+    modalita:document.getElementById('fModalita').value,
+    contatto:document.getElementById('fContatto').value.trim(),
+    note:document.getElementById('fNote').value.trim(),
+    data:isoDate(mDate),
+    ora:mTime
+  };
+  persist(); closeModal(); render();
+}
+function deleteAppt(){
+  if(!mKey||!confirm(`Eliminare appuntamento di ${db[mKey]?.cognome} ${db[mKey]?.nome||''}?`)) return;
+  delete db[mKey]; persist(); closeModal(); render();
 }
 
-function closeOverlay(e) {
-  if (e.target === document.getElementById('overlay')) closeModal();
+// ── AI PANEL ──
+function toggleAI(open){
+  document.getElementById('aiPanel').classList.toggle('open', open);
+  document.getElementById('aiOverlay').classList.toggle('visible', open);
+  document.getElementById('calendarWrap').classList.toggle('ai-open', open);
+  if(open) loadAiConfig();
+}
+function loadAiConfig(){
+  const provider=localStorage.getItem('bdz_ai_provider')||'openai';
+  document.getElementById('aiProvider').value=provider;
+  const key=localStorage.getItem(provider==='openai'?'bdz_key_openai':'bdz_key_gemini')||'';
+  document.getElementById('aiKey').value=key;
+}
+function saveAiConfig(){
+  const provider=document.getElementById('aiProvider').value;
+  const key=document.getElementById('aiKey').value;
+  localStorage.setItem('bdz_ai_provider',provider);
+  localStorage.setItem(provider==='openai'?'bdz_key_openai':'bdz_key_gemini',key);
 }
 
-function saveAppt() {
-  const nome    = document.getElementById('fNome').value.trim();
-  const cognome = document.getElementById('fCognome').value.trim();
-  if (!nome || !cognome) {
-    document.getElementById(nome ? 'fCognome' : 'fNome').focus();
+async function aiSend(q){
+  const text=(q||document.getElementById('aiInput').value).trim();
+  if(!text||aiLoading) return;
+  if(!q) document.getElementById('aiInput').value='';
+
+  const provider=document.getElementById('aiProvider').value;
+  const apiKey=document.getElementById('aiKey').value.trim();
+  if(!apiKey){
+    appendMsg('ai','⚠ Inserisci la API key nel pannello di configurazione in basso.');
     return;
   }
 
-  const key = mKey || apptKey(mDate, mTime);
-  db[key] = {
-    nome, cognome,
-    tipo:     document.getElementById('fTipo').value,
-    contatto: document.getElementById('fContatto').value.trim(),
-    note:     document.getElementById('fNote').value.trim(),
-    data:     isoDate(mDate),
-    ora:      mTime
-  };
+  appendMsg('user',text);
+  appendMsg('ai','…',true);
+  aiLoading=true;
+  document.getElementById('aiSendBtn').disabled=true;
 
-  persist();
-  closeModal();
-  render();
+  try{
+    const system=buildAiSystem();
+    const reply=provider==='openai'
+      ?await callOpenAI(apiKey,system,text)
+      :await callGemini(apiKey,system,text);
+    replaceLastMsg(reply);
+  }catch(e){
+    replaceLastMsg('❌ '+e.message);
+  }
+  aiLoading=false;
+  document.getElementById('aiSendBtn').disabled=false;
 }
 
-function deleteAppt() {
-  if (!mKey || !confirm(`Eliminare appuntamento di ${db[mKey]?.cognome} ${db[mKey]?.nome}?`)) return;
-  delete db[mKey];
-  persist();
-  closeModal();
-  render();
+function appendMsg(role,text,spin){
+  const msgs=document.getElementById('aiMsgs');
+  const div=document.createElement('div');
+  div.className=`msg msg-${role==='user'?'u':'a'}${spin?' spin':''}`;
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function replaceLastMsg(text){
+  const msgs=document.getElementById('aiMsgs');
+  const last=msgs.lastElementChild;
+  if(last&&last.classList.contains('spin')){ last.textContent=text; last.classList.remove('spin'); }
+  else appendMsg('ai',text);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function buildAiSystem(){
+  const days=Array.from({length:5},(_,i)=>addDays(weekStart,i));
+  const allSlots=[...MORNING,...AFTERNOON];
+
+  // Week appointments
+  const weekAppts=[];
+  days.forEach((d,di)=>{
+    allSlots.forEach(t=>{
+      const appt=db[apptKey(d,t)];
+      if(appt) weekAppts.push({
+        giorno:DAYS_FULL[di], data:fmtShort(d), ora:t,
+        cliente:`${appt.cognome}${appt.nome?' '+appt.nome:''}`,
+        tipo:tipoShort(appt.tipo||'dichiarazione'),
+        modalita:appt.modalita==='online'?'ONLINE/Teams':appt.modalita==='telefono'?'Telefono':'In presenza',
+        contatto:appt.contatto||'',
+        note:appt.note||''
+      });
+    });
+  });
+
+  const apptText=weekAppts.length===0
+    ?'Nessun appuntamento questa settimana.'
+    :weekAppts.map(a=>`${a.giorno} ${a.data} ore ${a.ora} | ${a.cliente} | ${a.tipo} | ${a.modalita}${a.contatto?' | '+a.contatto:''}${a.note?' | Note: '+a.note:''}`).join('\n');
+
+  // Tracker data
+  const tracker=trackerClienti.slice(0,80); // limit for context
+  const trackerText=tracker.length===0
+    ?'DR Tracker non disponibile (nessun dato in bdz_dr_tracker localStorage).'
+    :tracker.map(c=>`${c.regime} | ${c.nominativo} | Stato:${c.stato}(${STATI_LABELS[c.stato]||''})`).join('\n');
+
+  const d=new Date();
+  return `Sei l'assistente agenda per Studio BDZ — Dott. Fabio Zambelli, Commercialista, Verona.
+Data oggi: ${d.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+Settimana corrente: ${fmtShort(days[0])} – ${fmtShort(days[4])} ${days[0].getFullYear()}
+
+APPUNTAMENTI SETTIMANA CORRENTE (${weekAppts.length} totali):
+${apptText}
+
+CLIENTI DAL DR TRACKER DICHIARAZIONI REDDITI (${trackerClienti.length} clienti):
+${trackerText}
+
+REGIMI FISCALI: S=Semplificato, F=Forfettario, A=Associazione, O=Ordinario, K=Soc.Capitali
+STATI DR: 0=Da elaborare, 1=Compilata, 2=Terminata(annotaz.), 3=Terminata definitiv., 4=Discussa con cliente
+
+ISTRUZIONI:
+- Rispondi sempre in italiano, sii conciso e professionale.
+- Per appuntamenti modalità "ONLINE/Teams": suggerisci di inviare il link Teams/Meet almeno 1 ora prima.
+- Per clienti con stato DR 0 (Da elaborare): alta priorità, sollecitare documenti.
+- Per clienti con stato DR 4 (Discussa): appuntamento di chiusura o verifica finale.
+- Regime F (Forfettario): ricorda contribuenti in regime agevolato, spesso lavoratori autonomi.
+- Regime K (Soc. Capitali): dichiarazioni societarie, tempi diversi dalle persone fisiche.
+- Per nuovi appuntamenti: suggerisci documenti standard (CU, spese mediche, mutui, affitti, F24).
+- Quando l'utente chiede di inviare un'email, digli di usare il pulsante "📧 Invia email settimana" oppure di digitare il testo e aprire Gmail.`;
+}
+
+async function callOpenAI(apiKey,system,userMsg){
+  const res=await fetch('https://api.openai.com/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+    body:JSON.stringify({model:'gpt-4o-mini',max_tokens:1024,
+      messages:[{role:'system',content:system},{role:'user',content:userMsg}]})
+  });
+  const d=await res.json();
+  if(d.error) throw new Error(d.error.message);
+  return d.choices?.[0]?.message?.content||'Nessuna risposta.';
+}
+
+async function callGemini(apiKey,system,userMsg){
+  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      system_instruction:{parts:[{text:system}]},
+      contents:[{role:'user',parts:[{text:userMsg}]}],
+      generationConfig:{maxOutputTokens:1024}
+    })
+  });
+  const d=await res.json();
+  if(d.error) throw new Error(d.error.message||JSON.stringify(d.error));
+  return d.candidates?.[0]?.content?.parts?.[0]?.text||'Nessuna risposta.';
+}
+
+// ── EMAIL ──
+function buildEmailBody(){
+  const days=Array.from({length:5},(_,i)=>addDays(weekStart,i));
+  const allSlots=[...MORNING,...AFTERNOON];
+  const y=days[0].getFullYear();
+  let lines=[];
+  lines.push(`AGENDA STUDIO BDZ — SETTIMANA ${fmtShort(days[0])} - ${fmtShort(days[4])} ${y}`);
+  lines.push(`Dott. Fabio Zambelli — Commercialista Verona`);
+  lines.push('');
+  let total=0;
+  days.forEach((d,di)=>{
+    const dayAppts=allSlots.map(t=>({t,a:db[apptKey(d,t)]})).filter(x=>x.a);
+    lines.push(`━━━ ${DAYS_FULL[di].toUpperCase()} ${fmtShort(d)} ━━━`);
+    if(!dayAppts.length){
+      lines.push('   (nessun appuntamento)');
+    } else {
+      dayAppts.forEach(({t,a})=>{
+        const mod=a.modalita==='online'?'🔗 Online/Teams':a.modalita==='telefono'?'📞 Telefono':'🏢 In presenza';
+        const cliente=`${a.cognome}${a.nome?' '+a.nome:''}`;
+        lines.push(`  ${t}  ${cliente}  |  ${tipoShort(a.tipo)}  |  ${mod}${a.contatto?'  |  '+a.contatto:''}${a.note?'\n         Note: '+a.note:''}`);
+        total++;
+      });
+    }
+    lines.push('');
+  });
+  lines.push(`─────────────────────────────────`);
+  lines.push(`Totale appuntamenti settimana: ${total}`);
+  const online=Object.values(db).filter(a=>{
+    const d=new Date(a.data||'');
+    return a.modalita==='online'&&days.some(day=>isoDate(day)===a.data);
+  }).length;
+  if(online>0) lines.push(`⚠ ${online} appuntamenti online → ricorda link Teams`);
+  lines.push('');
+  lines.push(`Generato da Agenda Studio BDZ`);
+  return lines.join('\n');
+}
+
+function sendWeekEmail(){
+  const days=Array.from({length:5},(_,i)=>addDays(weekStart,i));
+  const y=days[0].getFullYear();
+  const subject=`Agenda Studio BDZ — Settimana ${fmtShort(days[0])}-${fmtShort(days[4])} ${y}`;
+  const body=buildEmailBody();
+  const gmailUrl=`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(EMAIL_TO)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(gmailUrl,'_blank');
+  closeBanner();
 }
 
 // ── NAVIGATION ──
-function changeWeek(d) {
-  weekStart = addDays(weekStart, d * 7);
-  render();
-}
-
-function goToToday() {
-  weekStart = getMonday(new Date());
-  render();
-}
+function changeWeek(d){ weekStart=addDays(weekStart,d*7); render(); }
+function goToToday(){ weekStart=getMonday(new Date()); render(); }
 
 // ── PERSISTENCE ──
-function persist() {
-  localStorage.setItem('agenda_v1', JSON.stringify(db));
-}
-
-// ── EXPORT / IMPORT ──
-function exportData() {
-  const json = JSON.stringify(db, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `agenda_${isoDate(new Date())}.json`;
+function persist(){ localStorage.setItem('agenda_v1',JSON.stringify(db)); }
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`agenda_${isoDate(new Date())}.json`;
   a.click();
 }
-
-function importData(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    try {
-      const imported = JSON.parse(ev.target.result);
-      const keys = Object.keys(imported);
-      if (!confirm(`Importare ${keys.length} appuntamenti? I dati esistenti verranno uniti (non sostituiti).`)) return;
-      db = { ...db, ...imported };
-      persist();
-      render();
+function importData(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    try{
+      const imported=JSON.parse(ev.target.result);
+      const keys=Object.keys(imported);
+      if(!confirm(`Importare ${keys.length} appuntamenti? I dati esistenti verranno uniti.`)) return;
+      db={...db,...imported}; persist(); render();
       alert(`✓ Importati ${keys.length} appuntamenti.`);
-    } catch {
-      alert('Errore: file JSON non valido.');
-    }
+    }catch{ alert('Errore: file JSON non valido.'); }
   };
   reader.readAsText(file);
-  e.target.value = '';
+  e.target.value='';
 }
 
 // ── KEYBOARD ──
-document.addEventListener('keydown', e => {
-  const open = document.getElementById('overlay').classList.contains('open');
-  if (e.key === 'Escape' && open) { closeModal(); return; }
-  if (e.key === 'Enter' && open && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); saveAppt(); return; }
-  if (!open) {
-    if (e.key === 'ArrowLeft')  changeWeek(-1);
-    if (e.key === 'ArrowRight') changeWeek(1);
+document.addEventListener('keydown',e=>{
+  const modalOpen=document.getElementById('overlay').classList.contains('open');
+  const aiOpen=document.getElementById('aiPanel').classList.contains('open');
+  if(e.key==='Escape'){
+    if(modalOpen){ closeModal(); return; }
+    if(aiOpen){ toggleAI(false); return; }
+  }
+  if(e.key==='Enter'&&modalOpen&&e.target.tagName!=='TEXTAREA'&&e.target.id!=='acSearch'){
+    e.preventDefault(); saveAppt(); return;
+  }
+  if(!modalOpen&&!aiOpen){
+    if(e.key==='ArrowLeft') changeWeek(-1);
+    if(e.key==='ArrowRight') changeWeek(1);
   }
 });
 
 // ── INIT ──
+trackerClienti=loadTrackerClienti();
+loadAiConfig();
 render();
+
+// Reload tracker if DR Tracker app updates it
+window.addEventListener('storage',e=>{
+  if(e.key==='bdz_dr_tracker') trackerClienti=loadTrackerClienti();
+  if(e.key==='agenda_v1') db=JSON.parse(e.newValue||'{}');
+});
 </script>
 </body>
 </html>
