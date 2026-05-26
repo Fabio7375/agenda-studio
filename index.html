@@ -185,6 +185,9 @@ header h1 span{font-weight:300;opacity:.8}
   </div>
   <div class="io-btns">
     <button class="btn-sm tracker" id="btnClienti" onclick="importClientiDaTracker()">👥 Carica clienti</button>
+    <button class="btn-sm tracker" onclick="exportClienti()" title="Scarica clienti come JSON da importare su altri browser/dispositivi">📤 Esporta clienti</button>
+    <button class="btn-sm tracker" onclick="document.getElementById('importClientiFile').click()" title="Importa clienti da file JSON (utile su GitHub Pages)">📥 Importa clienti da file</button>
+    <input type="file" id="importClientiFile" accept=".json" style="display:none" onchange="importClientiDaFile(event)">
     <button class="btn-sm" onclick="openSettings()">⚙️ Orari</button>
     <button class="btn-sm email" onclick="sendWeekEmail()" title="Invia riepilogo settimana via Gmail">📧 Email settimana</button>
     <button class="btn-sm" onclick="exportData()">⬇ Esporta JSON</button>
@@ -458,6 +461,32 @@ function importClientiDaTracker(){
   localStorage.setItem('agenda_clienti',JSON.stringify(clientiAgenda));
   updateClientiBadge();
   alert(`✓ ${data.length} clienti caricati con regime e stato DR.`);
+}
+
+function exportClienti(){
+  if(!clientiAgenda.length){ alert('Nessun cliente da esportare. Carica prima i clienti dal Tracker.'); return; }
+  const blob=new Blob([JSON.stringify(clientiAgenda,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`clienti_agenda_${isoDate(new Date())}.json`;
+  a.click();
+}
+function importClientiDaFile(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!Array.isArray(data)||!data[0]?.nominativo) throw new Error('Formato non valido');
+      if(!confirm(`Importare ${data.length} clienti da file?\nL'elenco attuale verrà sostituito.`)) return;
+      clientiAgenda=data;
+      localStorage.setItem('agenda_clienti',JSON.stringify(clientiAgenda));
+      updateClientiBadge();
+      alert(`✓ ${data.length} clienti importati da file.`);
+    }catch{ alert('Errore: file non valido. Usa il file esportato con "Esporta clienti".'); }
+  };
+  reader.readAsText(file);
+  e.target.value='';
 }
 
 function acFilter(q){
