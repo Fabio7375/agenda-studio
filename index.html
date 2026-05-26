@@ -184,14 +184,14 @@ header h1 span{font-weight:300;opacity:.8}
     <span class="legend-item"><span style="font-size:.9rem">🟢</span>Online/Teams</span>
   </div>
   <div class="io-btns">
-    <button class="btn-sm tracker" id="btnClienti" onclick="importClientiDaTracker()">👥 Carica clienti</button>
-    <button class="btn-sm tracker" onclick="exportClienti()" title="Scarica clienti come JSON da importare su altri browser/dispositivi">📤 Esporta clienti</button>
-    <button class="btn-sm tracker" onclick="document.getElementById('importClientiFile').click()" title="Importa clienti da file JSON (utile su GitHub Pages)">📥 Importa clienti da file</button>
+    <button class="btn-sm tracker" id="btnClienti" onclick="openGestioneClienti()">👥 Clienti</button>
+    <button class="btn-sm tracker" onclick="exportClienti()" title="Scarica clienti come JSON">📤 Esporta clienti</button>
+    <button class="btn-sm tracker" onclick="document.getElementById('importClientiFile').click()" title="Importa clienti da JSON">📥 Importa clienti</button>
     <input type="file" id="importClientiFile" accept=".json" style="display:none" onchange="importClientiDaFile(event)">
     <button class="btn-sm" onclick="openSettings()">⚙️ Orari</button>
-    <button class="btn-sm email" onclick="sendWeekEmail()" title="Invia riepilogo settimana via Gmail">📧 Email settimana</button>
-    <button class="btn-sm" onclick="exportData()">⬇ Esporta JSON</button>
-    <button class="btn-sm" onclick="document.getElementById('importFile').click()">⬆ Importa JSON</button>
+    <button class="btn-sm email" onclick="sendWeekEmail()">📧 Email settimana</button>
+    <button class="btn-sm" onclick="exportData()">⬇ Esporta agenda</button>
+    <button class="btn-sm" onclick="document.getElementById('importFile').click()">⬆ Importa agenda</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
   </div>
 </div>
@@ -309,6 +309,49 @@ Configura la API key in basso, poi usa i pulsanti rapidi o scrivi liberamente.</
       <button class="btn btn-danger" id="btnDel" onclick="deleteAppt()" style="display:none;margin-right:auto">🗑 Elimina</button>
       <button class="btn btn-secondary" onclick="closeModal()">Annulla</button>
       <button class="btn btn-primary" onclick="saveAppt()">✓ Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- Gestione Clienti Modal -->
+<div class="settings-overlay" id="clientiOverlay" onclick="closeClientiOutside(event)">
+  <div class="settings-modal" style="width:500px;max-height:85vh;display:flex;flex-direction:column">
+    <div class="modal-head" style="background:linear-gradient(135deg,#4a1d96,#6d28d9)">
+      <h2>👥 Gestione Clienti &nbsp;<span id="clientiCount" style="font-weight:400;font-size:.8rem;opacity:.8"></span></h2>
+    </div>
+    <!-- Aggiungi nuovo -->
+    <div style="padding:.9rem 1.25rem;border-bottom:1px solid #e2e8f0;background:#faf9ff">
+      <div style="font-size:.75rem;font-weight:700;color:#4a5568;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.04em">Aggiungi cliente</div>
+      <div style="display:grid;grid-template-columns:1fr 160px auto;gap:.5rem;align-items:end">
+        <div>
+          <div style="font-size:.72rem;color:#718096;margin-bottom:.2rem">Nominativo (COGNOME NOME o Ragione Sociale)</div>
+          <input id="cNominativo" type="text" placeholder="es. ROSSI MARIO oppure ALFA SRL"
+            style="width:100%;padding:.4rem .6rem;border:1px solid #cbd5e0;border-radius:5px;font-size:.85rem;outline:none;text-transform:uppercase;font-family:inherit"
+            onkeydown="if(event.key==='Enter') saveNewCliente()">
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:#718096;margin-bottom:.2rem">Regime fiscale</div>
+          <select id="cRegime" style="width:100%;padding:.42rem .5rem;border:1px solid #cbd5e0;border-radius:5px;font-size:.82rem;outline:none;font-family:inherit;background:white">
+            <option value="S">S — Semplificato</option>
+            <option value="F">F — Forfettario</option>
+            <option value="O">O — Ordinario</option>
+            <option value="K">K — Soc. Capitali</option>
+            <option value="A">A — Associazione</option>
+          </select>
+        </div>
+        <button onclick="saveNewCliente()"
+          style="padding:.42rem 1rem;background:#6d28d9;color:white;border:none;border-radius:5px;cursor:pointer;font-size:.82rem;font-weight:600;white-space:nowrap">
+          ➕ Aggiungi
+        </button>
+      </div>
+    </div>
+    <!-- Lista clienti -->
+    <div style="flex:1;overflow-y:auto;padding:.75rem 1.25rem">
+      <div style="font-size:.72rem;color:#718096;margin-bottom:.5rem" id="clientiListHint"></div>
+      <div id="clientiList"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeGestioneClienti()">Chiudi</button>
     </div>
   </div>
 </div>
@@ -434,33 +477,70 @@ function tipoShort(t){ return {dichiarazione:'Dich. Redditi',discussione:'Discus
 function loadClientiAgenda(){
   try{
     const own=localStorage.getItem('agenda_clienti');
-    if(own){ clientiAgenda=JSON.parse(own); updateClientiBadge(); return; }
-    // auto-import da DR Tracker se disponibile
-    const tracker=localStorage.getItem('bdz_dr_tracker');
-    if(tracker){
-      clientiAgenda=JSON.parse(tracker);
-      localStorage.setItem('agenda_clienti',JSON.stringify(clientiAgenda));
-    }
+    clientiAgenda=own?JSON.parse(own):[];
   }catch{ clientiAgenda=[]; }
+  updateClientiBadge();
+}
+function saveClientiAgenda(){
+  localStorage.setItem('agenda_clienti',JSON.stringify(clientiAgenda));
   updateClientiBadge();
 }
 function updateClientiBadge(){
   const btn=document.getElementById('btnClienti');
-  if(!btn) return;
-  btn.textContent=clientiAgenda.length>0?`👥 ${clientiAgenda.length} clienti`:'👥 Carica clienti';
+  if(btn) btn.textContent=`👥 Clienti${clientiAgenda.length?` (${clientiAgenda.length})`:''}`;
 }
-function importClientiDaTracker(){
-  const raw=localStorage.getItem('bdz_dr_tracker');
-  if(!raw||JSON.parse(raw).length===0){
-    alert('DR Tracker non trovato in questo browser.\n\nApri il file dr-tracker-bdz_NEW.html nello stesso browser almeno una volta, poi clicca di nuovo "Carica clienti".');
+
+// Gestione clienti modal
+function openGestioneClienti(){
+  document.getElementById('clientiOverlay').classList.add('open');
+  renderClientiList();
+  setTimeout(()=>document.getElementById('cNominativo').focus(),80);
+}
+function closeGestioneClienti(){ document.getElementById('clientiOverlay').classList.remove('open'); }
+function closeClientiOutside(e){ if(e.target===document.getElementById('clientiOverlay')) closeGestioneClienti(); }
+
+function saveNewCliente(){
+  const nom=document.getElementById('cNominativo').value.trim().toUpperCase();
+  if(!nom){ document.getElementById('cNominativo').focus(); return; }
+  if(clientiAgenda.some(c=>c.nominativo===nom)){
+    alert('Cliente già presente nell\'elenco.'); return;
+  }
+  const regime=document.getElementById('cRegime').value;
+  clientiAgenda.push({id:Date.now().toString(36), nominativo:nom, regime, stato:0});
+  clientiAgenda.sort((a,b)=>a.nominativo.localeCompare(b.nominativo));
+  saveClientiAgenda();
+  document.getElementById('cNominativo').value='';
+  document.getElementById('cNominativo').focus();
+  renderClientiList();
+}
+
+function deleteCliente(id){
+  clientiAgenda=clientiAgenda.filter(c=>c.id!==id);
+  saveClientiAgenda();
+  renderClientiList();
+}
+
+function renderClientiList(){
+  const count=document.getElementById('clientiCount');
+  const hint=document.getElementById('clientiListHint');
+  const list=document.getElementById('clientiList');
+  count.textContent=`(${clientiAgenda.length} clienti)`;
+  if(!clientiAgenda.length){
+    hint.textContent='';
+    list.innerHTML='<div style="color:#a0aec0;font-size:.82rem;padding:.5rem 0">Nessun cliente. Aggiungi il primo usando il form sopra.</div>';
     return;
   }
-  const data=JSON.parse(raw);
-  if(!confirm(`Importare ${data.length} clienti dal DR Tracker?\nL'elenco attuale verrà aggiornato.`)) return;
-  clientiAgenda=data;
-  localStorage.setItem('agenda_clienti',JSON.stringify(clientiAgenda));
-  updateClientiBadge();
-  alert(`✓ ${data.length} clienti caricati con regime e stato DR.`);
+  hint.textContent=`Clicca ✕ per eliminare · ordinato alfabeticamente`;
+  list.innerHTML=clientiAgenda.map(c=>{
+    const rc=REGIME_COLORS[c.regime]||{c:'#6b7280',bg:'#f3f4f6'};
+    const sc=STATI_COLORS[c.stato]||'#9ca3af';
+    return `<div style="display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;border-radius:5px;margin-bottom:.2rem;background:#fafafa;border:1px solid #f0f4f8">
+      <span class="regime-badge" style="color:${rc.c};background:${rc.bg}">${c.regime}</span>
+      <span style="flex:1;font-size:.82rem;font-weight:500">${c.nominativo}</span>
+      <span style="font-size:.65rem;color:${sc};white-space:nowrap">${STATI_LABELS[c.stato]||''}</span>
+      <button onclick="deleteCliente('${c.id}')" style="background:#fee2e2;border:none;color:#dc2626;border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:.75rem;flex-shrink:0">✕</button>
+    </div>`;
+  }).join('');
 }
 
 function exportClienti(){
@@ -494,7 +574,7 @@ function acFilter(q){
   const v=q.trim().toUpperCase();
   if(v.length<2){ drop.classList.add('hidden'); return; }
   if(clientiAgenda.length===0){
-    drop.innerHTML='<div class="ac-item no-results">Nessun cliente caricato — usa "👥 Carica clienti" nella toolbar</div>';
+    drop.innerHTML='<div class="ac-item no-results">Nessun cliente — usa "👥 Clienti" per aggiungerne</div>';
     drop.classList.remove('hidden'); return;
   }
   const matches=clientiAgenda.filter(c=>c.nominativo.toUpperCase().includes(v)).slice(0,12);
@@ -920,7 +1000,7 @@ render();
 // Reload tracker if DR Tracker app updates it
 window.addEventListener('storage',e=>{
   if(e.key==='agenda_clienti'){ try{ clientiAgenda=JSON.parse(e.newValue||'[]'); updateClientiBadge(); }catch{} }
-  if(e.key==='agenda_v1'){ try{ db=JSON.parse(e.newValue||'{}'); }catch{} }
+  if(e.key==='agenda_v1'){ try{ db=JSON.parse(e.newValue||'{}'); render(); }catch{} }
 });
 </script>
 </body>
