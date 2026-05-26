@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda Studio — Dichiarazioni Redditi</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f0f4f8;
+  color: #2d3748;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
+  color: white;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+header h1 { font-size: 1.15rem; font-weight: 700; white-space: nowrap; }
+header h1 span { font-weight: 300; opacity: .8; }
+
+.nav-week {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.btn-nav {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 0.38rem 0.75rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.btn-nav:hover { background: rgba(255,255,255,0.32); }
+.btn-nav.accent { background: rgba(255,255,255,0.32); border-color: rgba(255,255,255,0.5); }
+.week-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-width: 195px;
+  text-align: center;
+  background: rgba(255,255,255,0.12);
+  padding: 0.38rem 0.85rem;
+  border-radius: 5px;
+}
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.55rem 1.5rem;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+.legend { display: flex; gap: 0.85rem; flex-wrap: wrap; align-items: center; }
+.legend-item { display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; color: #4a5568; }
+.legend-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+.toolbar-hint { margin-left: auto; font-size: 0.75rem; color: #a0aec0; }
+
+.io-btns { display: flex; gap: 0.4rem; }
+.btn-sm {
+  background: #edf2f7;
+  border: 1px solid #cbd5e0;
+  color: #4a5568;
+  padding: 0.3rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 500;
+  transition: background .15s;
+}
+.btn-sm:hover { background: #e2e8f0; }
+
+/* ── CALENDAR ── */
+.calendar-wrap { padding: 0.85rem 1.5rem 2rem; overflow-x: auto; }
+
+.calendar {
+  display: grid;
+  grid-template-columns: 54px repeat(5, 1fr);
+  min-width: 680px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+/* Header row */
+.ch {
+  background: #ebf4ff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 0.55rem 0.3rem;
+  border-bottom: 2px solid #bee3f8;
+  line-height: 1.3;
+  color: #2c5282;
+}
+.ch:not(:last-child) { border-right: 1px solid #bee3f8; }
+.ch.today {
+  background: #2b6cb0;
+  color: white;
+  border-bottom-color: #1a365d;
+}
+.ch.corner { background: #f7fafc; border-right: 1px solid #e2e8f0; }
+
+/* Time labels */
+.tl {
+  font-size: 0.68rem;
+  color: #718096;
+  text-align: right;
+  padding: 0 5px;
+  background: #f7fafc;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #f0f4f8;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  user-select: none;
+}
+.tl.half { color: #b0bec5; font-size: 0.64rem; }
+
+/* Slot cells */
+.slot {
+  border-bottom: 1px solid #edf2f7;
+  border-right: 1px solid #edf2f7;
+  min-height: 46px;
+  cursor: pointer;
+  position: relative;
+  transition: background .12s;
+}
+.slot:last-child { border-right: none; }
+.slot:hover { background: #ebf8ff; }
+.slot.half-hour { border-bottom-style: dashed; border-bottom-color: #f0f4f8; }
+.slot.booked { background: #fff; cursor: default; }
+.slot.booked:hover { background: #fff; }
+
+/* Appointment block */
+.appt {
+  position: absolute;
+  inset: 2px;
+  border-radius: 5px;
+  padding: 4px 6px;
+  font-size: 0.73rem;
+  line-height: 1.35;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: filter .12s, transform .1s;
+}
+.appt:hover { filter: brightness(1.08); transform: scale(1.01); }
+.appt.dichiarazione { background: #3182ce; color: white; }
+.appt.discussione   { background: #38a169; color: white; }
+.appt.altro         { background: #805ad5; color: white; }
+.appt strong { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
+.appt .sub { font-size: 0.64rem; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Break row */
+.br-label {
+  background: #fffbeb;
+  border-right: 1px solid #fbd38d;
+  border-bottom: 1px solid #fbd38d;
+  border-top: 1px solid #fbd38d;
+  font-size: 0.64rem;
+  color: #b7791f;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 5px;
+  font-weight: 600;
+}
+.br-cell {
+  background: #fffbeb;
+  border-bottom: 1px solid #fbd38d;
+  border-top: 1px solid #fbd38d;
+  border-right: 1px dashed #fbd38d;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  color: #c6923a;
+}
+
+/* ── MODAL ── */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.overlay.open { display: flex; }
+
+.modal {
+  background: white;
+  border-radius: 10px;
+  width: 440px;
+  max-width: 100%;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  overflow: hidden;
+  animation: slideUp .18s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.modal-head {
+  background: linear-gradient(135deg, #1a365d, #2b6cb0);
+  color: white;
+  padding: 1rem 1.25rem;
+}
+.modal-head h2 { font-size: 1rem; font-weight: 700; margin-bottom: .2rem; }
+.modal-head .slot-badge {
+  font-size: 0.78rem;
+  opacity: .85;
+  background: rgba(255,255,255,.15);
+  display: inline-block;
+  padding: .15rem .5rem;
+  border-radius: 3px;
+  margin-top: .3rem;
+}
+
+.modal-body { padding: 1.1rem 1.25rem; }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.fg { margin-bottom: .8rem; }
+.fg label { display: block; font-size: .77rem; font-weight: 700; color: #4a5568; margin-bottom: .28rem; letter-spacing: .02em; }
+.fg input, .fg select, .fg textarea {
+  width: 100%;
+  padding: .42rem .6rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 5px;
+  font-size: .875rem;
+  outline: none;
+  font-family: inherit;
+  background: #fafafa;
+  transition: border .15s, box-shadow .15s;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49,130,206,.18);
+  background: white;
+}
+.fg textarea { resize: vertical; min-height: 72px; }
+
+.modal-foot {
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+  padding: .85rem 1.25rem;
+  background: #f7fafc;
+  border-top: 1px solid #e2e8f0;
+}
+.btn { padding: .45rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-size: .855rem; font-weight: 600; transition: background .15s, transform .1s; }
+.btn:active { transform: scale(.97); }
+.btn-primary   { background: #3182ce; color: white; }
+.btn-primary:hover { background: #2c5282; }
+.btn-danger    { background: #e53e3e; color: white; }
+.btn-danger:hover { background: #c53030; }
+.btn-secondary { background: #edf2f7; color: #4a5568; }
+.btn-secondary:hover { background: #e2e8f0; }
+
+/* required star */
+.req { color: #e53e3e; }
+
+/* counter badge */
+.week-count {
+  font-size: .72rem;
+  background: rgba(255,255,255,.18);
+  padding: .15rem .5rem;
+  border-radius: 10px;
+  margin-left: .3rem;
+}
+
+@media print {
+  header .nav-week, .toolbar .io-btns, .toolbar-hint { display: none !important; }
+  .calendar-wrap { padding: 0; }
+  .calendar { box-shadow: none; border: 1px solid #ccc; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📅 Agenda Studio &nbsp;<span>Dichiarazioni Redditi</span></h1>
+  <div class="nav-week">
+    <button class="btn-nav" onclick="changeWeek(-1)">&#8592; Prec</button>
+    <span class="week-label" id="weekLabel">—</span>
+    <button class="btn-nav" onclick="changeWeek(1)">Succ &#8594;</button>
+    <button class="btn-nav accent" onclick="goToToday()">Oggi</button>
+    <button class="btn-nav" onclick="window.print()">🖨️ Stampa</button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#3182ce"></span>Dichiarazione Redditi</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#38a169"></span>Discussione</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#805ad5"></span>Altro</span>
+  </div>
+  <div class="io-btns">
+    <button class="btn-sm" onclick="exportData()">⬇ Esporta JSON</button>
+    <button class="btn-sm" onclick="document.getElementById('importFile').click()">⬆ Importa JSON</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+  <span class="toolbar-hint">Clicca slot libero per aggiungere • Clicca appuntamento per modificare</span>
+</div>
+
+<div class="calendar-wrap">
+  <div class="calendar" id="cal"></div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="closeOverlay(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="mTitle">Nuovo Appuntamento</h2>
+      <div class="slot-badge" id="mSlotBadge"></div>
+    </div>
+    <div class="modal-body">
+      <div class="frow">
+        <div class="fg">
+          <label>Nome <span class="req">*</span></label>
+          <input id="fNome" type="text" placeholder="es. Mario" autocomplete="off">
+        </div>
+        <div class="fg">
+          <label>Cognome <span class="req">*</span></label>
+          <input id="fCognome" type="text" placeholder="es. Rossi" autocomplete="off">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Tipo appuntamento</label>
+        <select id="fTipo">
+          <option value="dichiarazione">📋 Dichiarazione Redditi</option>
+          <option value="discussione">💬 Discussione</option>
+          <option value="altro">📌 Altro</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Telefono / Email</label>
+        <input id="fContatto" type="text" placeholder="es. 333 123 4567" autocomplete="off">
+      </div>
+      <div class="fg">
+        <label>Note</label>
+        <textarea id="fNote" placeholder="Documenti necessari, argomenti da trattare..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger" id="btnDel" onclick="deleteAppt()" style="display:none;margin-right:auto">🗑 Elimina</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Annulla</button>
+      <button class="btn btn-primary" onclick="saveAppt()">✓ Salva</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let weekStart = getMonday(new Date());
+let db = JSON.parse(localStorage.getItem('agenda_v1') || '{}');
+let mDate = null, mTime = null, mKey = null;
+
+// ── CONSTANTS ──
+const DAYS_SHORT = ['Lun','Mar','Mer','Gio','Ven'];
+const DAYS_FULL  = ['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì'];
+const MONTHS = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+
+const MORNING = buildSlots(9, 13);   // 09:00 … 12:30
+const AFTERNOON = buildSlots(15, 18); // 15:00 … 17:30
+
+function buildSlots(from, to) {
+  const s = [];
+  for (let h = from; h < to; h++) {
+    s.push(pad(h) + ':00');
+    s.push(pad(h) + ':30');
+  }
+  return s;
+}
+
+// ── HELPERS ──
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function getMonday(d) {
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const m = new Date(d);
+  m.setDate(m.getDate() + diff);
+  m.setHours(0,0,0,0);
+  return m;
+}
+
+function addDays(d, n) {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+
+function isoDate(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function isToday(d) {
+  const t = new Date();
+  return isoDate(d) === isoDate(t);
+}
+
+function fmtShort(d) {
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}`;
+}
+
+function fmtLong(d) {
+  return `${DAYS_FULL[d.getDay()-1]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function apptKey(d, t) { return `${isoDate(d)}@${t}`; }
+
+// ── RENDER ──
+function render() {
+  const days = Array.from({length:5}, (_,i) => addDays(weekStart, i));
+
+  // Week label
+  const y = days[0].getFullYear();
+  document.getElementById('weekLabel').innerHTML =
+    `${fmtShort(days[0])} – ${fmtShort(days[4])} &nbsp;${y}`;
+
+  const cal = document.getElementById('cal');
+  cal.innerHTML = '';
+
+  // Header
+  addEl(cal, 'div', 'ch corner', '');
+  days.forEach((d, i) => {
+    const h = addEl(cal, 'div', 'ch' + (isToday(d) ? ' today' : ''));
+    h.innerHTML = `<div>${DAYS_SHORT[i]}</div><div style="font-size:.9rem;font-weight:400">${fmtShort(d)}</div>`;
+  });
+
+  // Morning slots
+  renderGroup(cal, days, MORNING);
+
+  // Lunch break row
+  addEl(cal, 'div', 'br-label', '13–15');
+  days.forEach(() => addEl(cal, 'div', 'br-cell', '— pausa pranzo —'));
+
+  // Afternoon slots
+  renderGroup(cal, days, AFTERNOON);
+
+  // Update week count badge
+  const count = days.reduce((acc, d) =>
+    acc + [...MORNING, ...AFTERNOON].filter(t => db[apptKey(d,t)]).length, 0);
+  document.getElementById('weekLabel').innerHTML +=
+    count > 0 ? `<span class="week-count">${count} appt</span>` : '';
+}
+
+function renderGroup(cal, days, slots) {
+  slots.forEach(time => {
+    const isHalf = time.endsWith(':30');
+    addEl(cal, 'div', 'tl' + (isHalf ? ' half' : ''), time);
+
+    days.forEach(d => {
+      const key = apptKey(d, time);
+      const appt = db[key];
+      const cell = addEl(cal, 'div', 'slot' + (isHalf ? ' half-hour' : '') + (appt ? ' booked' : ''));
+
+      if (appt) {
+        const tipo = appt.tipo || 'dichiarazione';
+        const block = addEl(cell, 'div', `appt ${tipo}`);
+        block.innerHTML = `<strong>${appt.cognome} ${appt.nome}</strong><span class="sub">${tipoShort(tipo)}${appt.contatto ? ' · '+appt.contatto : ''}</span>`;
+        block.title = `${appt.nome} ${appt.cognome}\n${appt.note || ''}`;
+        block.onclick = (e) => { e.stopPropagation(); openModal(d, time, key); };
+      } else {
+        cell.onclick = () => openModal(d, time, null);
+      }
+    });
+  });
+}
+
+function addEl(parent, tag, cls, text) {
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (text !== undefined) el.textContent = text;
+  parent.appendChild(el);
+  return el;
+}
+
+function tipoShort(t) {
+  return { dichiarazione: 'Dich. Redditi', discussione: 'Discussione', altro: 'Altro' }[t] || t;
+}
+
+// ── MODAL ──
+function openModal(date, time, key) {
+  mDate = date; mTime = time; mKey = key;
+  const appt = key ? db[key] : null;
+  const isNew = !appt;
+
+  document.getElementById('mTitle').textContent = isNew ? 'Nuovo Appuntamento' : 'Modifica Appuntamento';
+  document.getElementById('mSlotBadge').textContent = `📅 ${fmtLong(date)} – ore ${time}`;
+  document.getElementById('btnDel').style.display = isNew ? 'none' : 'inline-block';
+
+  document.getElementById('fNome').value     = appt?.nome     || '';
+  document.getElementById('fCognome').value  = appt?.cognome  || '';
+  document.getElementById('fTipo').value     = appt?.tipo     || 'dichiarazione';
+  document.getElementById('fContatto').value = appt?.contatto || '';
+  document.getElementById('fNote').value     = appt?.note     || '';
+
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(() => document.getElementById('fNome').focus(), 80);
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+  mDate = mTime = mKey = null;
+}
+
+function closeOverlay(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+}
+
+function saveAppt() {
+  const nome    = document.getElementById('fNome').value.trim();
+  const cognome = document.getElementById('fCognome').value.trim();
+  if (!nome || !cognome) {
+    document.getElementById(nome ? 'fCognome' : 'fNome').focus();
+    return;
+  }
+
+  const key = mKey || apptKey(mDate, mTime);
+  db[key] = {
+    nome, cognome,
+    tipo:     document.getElementById('fTipo').value,
+    contatto: document.getElementById('fContatto').value.trim(),
+    note:     document.getElementById('fNote').value.trim(),
+    data:     isoDate(mDate),
+    ora:      mTime
+  };
+
+  persist();
+  closeModal();
+  render();
+}
+
+function deleteAppt() {
+  if (!mKey || !confirm(`Eliminare appuntamento di ${db[mKey]?.cognome} ${db[mKey]?.nome}?`)) return;
+  delete db[mKey];
+  persist();
+  closeModal();
+  render();
+}
+
+// ── NAVIGATION ──
+function changeWeek(d) {
+  weekStart = addDays(weekStart, d * 7);
+  render();
+}
+
+function goToToday() {
+  weekStart = getMonday(new Date());
+  render();
+}
+
+// ── PERSISTENCE ──
+function persist() {
+  localStorage.setItem('agenda_v1', JSON.stringify(db));
+}
+
+// ── EXPORT / IMPORT ──
+function exportData() {
+  const json = JSON.stringify(db, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `agenda_${isoDate(new Date())}.json`;
+  a.click();
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      const keys = Object.keys(imported);
+      if (!confirm(`Importare ${keys.length} appuntamenti? I dati esistenti verranno uniti (non sostituiti).`)) return;
+      db = { ...db, ...imported };
+      persist();
+      render();
+      alert(`✓ Importati ${keys.length} appuntamenti.`);
+    } catch {
+      alert('Errore: file JSON non valido.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', e => {
+  const open = document.getElementById('overlay').classList.contains('open');
+  if (e.key === 'Escape' && open) { closeModal(); return; }
+  if (e.key === 'Enter' && open && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); saveAppt(); return; }
+  if (!open) {
+    if (e.key === 'ArrowLeft')  changeWeek(-1);
+    if (e.key === 'ArrowRight') changeWeek(1);
+  }
+});
+
+// ── INIT ──
+render();
+</script>
+</body>
+</html>
